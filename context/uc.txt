@@ -1,0 +1,96 @@
+*user:
+- uc1: đăng nhập (tiên quyết)
+
+- uc2: tạo workspace 
+- uc2.1: (bỏ subworkspace)
+
+- uc3: quản lý workspace sở hữu 
+  (tạo, sửa, xoá, thêm/mời thành viên, xem danh sách member)
+
+- uc4: upload/download file (trong workspace)
+  - upload: tạo file + version 1 (full)
+  - download: lấy version mới nhất
+
+- uc5: quản lý version
+  - tạo version mới (full | diff)
+  - xem danh sách version
+  - download version cụ thể
+  - restore version (tạo version mới từ version cũ)
+
+- uc6: feedback (ticket)
+
+- uc7: qly thông tin cá nhân
+
+- uc8: vào/rời workspace
+
+- uc9: comment vào tài liệu (theo file/version)
+  - comment file (file_id != null, version_id = null)
+  - comment version (version_id != null)
+
+- uc*.1: tìm kiếm theo tên tài liệu (trong workspace)
+
+- uc*.2: xem log (own workspace)
+
+- uc*.3: gửi yêu cầu cấp lại mật khẩu
+
+- uc10: đăng xuất
+=============================================================================================================================
+
+*admin: (extend from user) (special login)
+
+- ad_uc1: quản lý tài khoản (tạo/ xoá/ sửa/ khoá)
+
+- ad_uc2: quản lý workspace (all)
+
+- ad_uc3: xem log (all activity)
+
+- ad_uc4: xem feedback 
+
+- ad_uc5: xem yêu cầu cấp lại mk
+=============================================================================================================================
+
+sys:
+- cảnh báo conflict khi upload version mới
+  rule:
+    latest_version_id != base_version_id → conflict
+=============================================================================================================================
+
+
+user: 
+id, username, email, password_hash, global_role, created_at, updated_at
+
+workspace: 
+id, name, owner_user_id, created_at, updated_at
+
+workspace_user: 
+user_id, workspace_id, role, joined_at
+
+file: 
+id, workspace_id, title, folder_path, created_by, created_at, updated_at
+
+version: 
+id, file_id, version_number, storage_path, is_full, base_version_id, file_size, checksum, created_by, created_at
+
+comment: 
+id, file_id, version_id, user_id, content, created_at
+
+feedback: 
+id, user_id, content, created_at
+
+activity_log: 
+id, user_id, workspace_id, action, entity_type, entity_id, created_at
+
+password_reset_request: 
+id, user_id, token, expired_at, created_at
+
+trash: 
+(id, entity_type, entity_id, deleted_at)  ##optional
+
+=============================================================================================================================
+
+
+
+Version rule: (để đỡ nhầm)
+version_number tự tăng
+if version_number % 5 == 0 → full
+else → diff
