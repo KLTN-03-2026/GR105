@@ -1,0 +1,44 @@
+/backend
+│
+├── API/
+│   ├── Controllers/
+│   │   ├── AuthController.cs
+│   │   └── UserController.cs
+│   ├── Middleware/
+│   └── Program.cs
+│
+├── Application/
+│   ├── DTOs/
+│   │   └── UserResponse.cs
+│   ├── Interfaces/
+│   │   ├── IUserService.cs
+│   │   └── IUserRepository.cs
+│   ├── Services/
+│   │   ├── UserService.cs
+│   │   └── AuthService.cs
+│   └── Configurations/
+│       └── JwtConfig.cs
+│
+├── Domain/
+│   └── Entities/
+│       └── User.cs
+│
+├── Infrastructure/
+│   ├── Auth/
+│   │   ├── AuthExtensions.cs
+│   │   ├── JwtSettings.cs
+│   │   └── UserContext.cs
+│   │
+│   ├── Config/
+│   │   └── EnvLoader.cs
+│   │
+│   ├── Persistence/
+│   │   ├── AppDbContext.cs
+│   │   └── IDbConnectionFactory.cs
+│   │
+│   └── Repositories/
+│       └── UserRepository.cs
+│
+├── .env
+├── appsettings.json
+└── backend.csproj
