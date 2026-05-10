@@ -28,6 +28,11 @@ namespace backend.Application.Services
                 throw new Exception("Invalid email or password.");
             }
 
+            if (user.IsLocked)
+            {
+                throw new UnauthorizedAccessException("Account is locked");
+            }
+
             // Verify password using BCrypt
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
             if (!isPasswordValid)
@@ -73,6 +78,38 @@ namespace backend.Application.Services
                     Email = user.Email
                 }
             };
+        }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _userRepository.GetByEmail(email);
+            if (user == null)
+            {
+                // To prevent email enumeration, return gracefully without telling the user
+                return;
+            }
+
+            var token = Guid.NewGuid().ToString("N");
+            var expiredAt = DateTime.UtcNow.AddMinutes(15);
+
+            await _userRepository.CreatePasswordResetTokenAsync(user.Id, token, expiredAt);
+
+            // In a real application, send this token via email here.
+            // For now, we will simulate this by logging it.
+            Console.WriteLine($"[EMAIL SENT TO {email}] Password Reset Link: {token}");
+        }
+
+        public async Task ResetPasswordAsync(string token, string newPassword)
+        {
+            var userId = await _userRepository.GetUserIdByValidResetTokenAsync(token);
+            if (userId == null)
+            {
+                throw new Exception("Invalid or expired password reset token.");
+            }
+
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _userRepository.UpdatePasswordAsync(userId.Value, passwordHash);
+            await _userRepository.DeletePasswordResetTokenAsync(token);
         }
 
         private string GenerateJwtToken(Domain.Entities.User user)
