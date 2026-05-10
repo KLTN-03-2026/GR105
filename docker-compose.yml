@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kltn_api
+    restart: unless-stopped
+    ports:
+      - "5000:5000" # Mở cho mọi IP nội bộ
+    env_file:
+      - ./backend/.env # Nạp toàn bộ biến môi trường
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DB_HOST=postgres # Trỏ tới container postgres thay vì localhost
+      - REDIS_URL=redis:6379 # Trỏ tới container redis
+    volumes:
+      - ./backend/uploads:/app/uploads # Giữ lại file thực tế
+      - ./backend/logs:/app/logs       # Giữ lại nhật ký log
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  postgres:
+    image: postgres:16
+    container_name: kltn_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: dms
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../context/init-db.sql:/docker-entrypoint-initdb.d/01_init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d dms"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: kltn_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: redis-server --save 60 1 --loglevel warning
+
+volumes:
+  pgdata:
+  redisdata:
