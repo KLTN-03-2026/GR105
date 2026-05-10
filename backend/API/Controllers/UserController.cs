@@ -1,4 +1,5 @@
 ﻿using backend.Application.DTOs;
+using backend.Application.DTOs.User;
 using Microsoft.AspNetCore.Mvc;
 using backend.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,6 @@ namespace backend.API.Controllers
         private readonly IUserService _userService;
         private readonly IUserContext _userContext;
 
-        // Inject thêm IUserContext để lấy thông tin user từ Token
         public UserController(IUserService userService, IUserContext userContext)
         {
             _userService = userService;
@@ -29,18 +29,20 @@ namespace backend.API.Controllers
             var result = new UserResponse
             {
                 Id = user.Id,
-                Email = user.Email
+                Username = user.Username,
+                Email = user.Email,
+                GlobalRole = user.GlobalRole,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
             };
 
             return Ok(result);
         }
 
-        // Endpoint mới: Lấy thông tin của chính user đang đăng nhập qua Token
         [HttpGet("me")]
         [Authorize] 
         public async Task<IActionResult> GetMe()
         {
-            // Lấy ID tự động từ JWT Token thông qua UserContext
             var currentUserId = _userContext.UserId;
 
             if (currentUserId == Guid.Empty)
@@ -53,10 +55,44 @@ namespace backend.API.Controllers
             var result = new UserResponse
             {
                 Id = user.Id,
-                Email = user.Email
+                Username = user.Username,
+                Email = user.Email,
+                GlobalRole = user.GlobalRole,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
             };
 
             return Ok(result);
+        }
+
+        [HttpPut("me")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+            var currentUserId = _userContext.UserId;
+            if (currentUserId == Guid.Empty) return Unauthorized();
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var updated = await _userService.UpdateProfileAsync(currentUserId, request);
+            if (!updated) return BadRequest(new { message = "Failed to update profile." });
+
+            return Ok(new { message = "Profile updated successfully." });
+        }
+
+        [HttpPut("me/password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var currentUserId = _userContext.UserId;
+            if (currentUserId == Guid.Empty) return Unauthorized();
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var updated = await _userService.ChangePasswordAsync(currentUserId, request);
+            if (!updated) return BadRequest(new { message = "Failed to change password." });
+
+            return Ok(new { message = "Password changed successfully." });
         }
     }
 }
