@@ -1,6 +1,0 @@
-@host = http://localhost:5087
-
-GET {{host}}/ping
-Accept: application/json
-
-###
