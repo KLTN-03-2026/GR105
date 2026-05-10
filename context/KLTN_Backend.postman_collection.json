@@ -1,0 +1,345 @@
+{
+	"info": {
+		"_postman_id": "ab123456-7890-1234-5678-90abcdef1234",
+		"name": "KLTN Backend API - FULL (Phase 5)",
+		"description": "Postman Collection mẫu cho Frontend Dev.\n- Bao gồm đầy đủ Auth, User, Workspace, Files.\n- Tích hợp logic tự động hóa (Scripts).\n- Cập nhật Phase 5: Thùng rác, Phân trang, Bảo mật đường dẫn.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "2. Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.user && jsonData.user.id) {",
+									"    pm.collectionVariables.set(\"userId\", jsonData.user.id);",
+									"}",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"authToken\", jsonData.token);",
+									"    console.log(\"Saved authToken to variables\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. User Endpoints",
+			"item": [
+				{
+					"name": "Get Me (Profile)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/user/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Workspace",
+			"item": [
+				{
+					"name": "Create Workspace",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"workspaceId\", jsonData.id);",
+									"    console.log(\"Saved workspaceId: \" + jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Frontend Testing Workspace\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/workspace",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspace"]
+						}
+					}
+				},
+				{
+					"name": "Get Owned Workspaces",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspace",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspace"]
+						}
+					}
+				},
+				{
+					"name": "Update Workspace",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/workspace/{{workspaceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspace", "{{workspaceId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Workspace",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspace/{{workspaceId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspace", "{{workspaceId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. File Operations",
+			"item": [
+				{
+					"name": "Get Active Files (Paging)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files?limit=20&offset=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files"],
+							"query": [
+								{"key": "limit", "value": "20"},
+								{"key": "offset", "value": "0"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload File (New)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"fileId\", jsonData.id);",
+									"    console.log(\"Saved fileId: \" + jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{"key": "File", "type": "file", "src": []},
+								{"key": "Title", "value": "document.txt", "type": "text"},
+								{"key": "FolderPath", "value": "/docs", "type": "text"}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files", "upload"]
+						}
+					}
+				},
+				{
+					"name": "Soft Delete File",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files/{{fileId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files", "{{fileId}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Trash Files",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files/trash?limit=20&offset=0",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files", "trash"],
+							"query": [{"key": "limit", "value": "20"}, {"key": "offset", "value": "0"}]
+						}
+					}
+				},
+				{
+					"name": "Restore File",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files/{{fileId}}/restore",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files", "{{fileId}}", "restore"]
+						}
+					}
+				},
+				{
+					"name": "Get File Versions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (Array.isArray(jsonData) && jsonData.length > 0) {",
+									"    pm.collectionVariables.set(\"latestVersionId\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files/{{fileId}}/versions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files", "{{fileId}}", "versions"]
+						}
+					}
+				},
+				{
+					"name": "Download File",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/workspaces/{{workspaceId}}/files/{{fileId}}/download",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "workspaces", "{{workspaceId}}", "files", "{{fileId}}", "download"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "baseUrl", "value": "http://localhost:5087", "type": "string"},
+		{"key": "userId", "value": "", "type": "string"},
+		{"key": "authToken", "value": "", "type": "string"},
+		{"key": "workspaceId", "value": "", "type": "string"},
+		{"key": "fileId", "value": "", "type": "string"},
+		{"key": "latestVersionId", "value": "", "type": "string"}
+	]
+}
