@@ -215,3 +215,11 @@ FakesAssemblies/
 
 # JetBrains Rider
 *.sln.iml
+
+# Data folder
+/uploads/
+uploads/
+
+# Log folder
+/logs/
+logs/
