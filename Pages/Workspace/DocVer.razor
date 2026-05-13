@@ -1,0 +1,818 @@
+﻿@page "/docver"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="ws-container">
+    <!-- TOPBAR -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Username</span>
+        </div>
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    <!-- TABS -->
+    <nav class="ws-tabs-bar">
+        <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docread")'>📄 Document</button>
+        <button class="tab-item">✉ Feedback</button>
+        <button class="tab-item active">🕒 Versioning</button>
+        <button class="tab-item">📋 Logs</button>
+        <button class="tab-item">⚙ Settings</button>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="ws-content-area">
+        @if (!isComparing)
+        {
+            <div class="directory-header">
+                <h2 class="directory-title">Directory / Folder / File</h2>
+                <div class="directory-actions">
+                    <div class="file-search-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search version.." @bind="versionSearchTerm" @bind:event="oninput" />
+                    </div>
+
+                    <div class="dropdown-wrapper">
+                        <button class="btn-add-file" @onclick="ToggleAddMenu">
+                            Add file <span class="arrow-down">▼</span>
+                        </button>
+                        @if (showAddMenu)
+                        {
+                            <div class="dropdown-menu-custom">
+                                <button class="dropdown-link"><span class="icon">+</span> Create new folder</button>
+                                <button class="dropdown-link"><span class="icon">↑</span> Upload files</button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="dropdown-wrapper">
+                        <button class="btn-more" @onclick="ToggleMoreMenu">•••</button>
+                        @if (showMoreMenu)
+                        {
+                            <div class="dropdown-menu-custom more-menu">
+                                <button class="dropdown-link">Copy path</button>
+                                <button class="dropdown-link delete">Delete File</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- VERSION LIST -->
+            <div class="version-list-container">
+                @foreach (var version in Versions)
+                {
+                    <div class="version-card">
+                        <div class="version-card-header">
+                            <div class="version-info-main">
+                                <div class="version-text">
+                                    <div class="name-row">
+                                        
+                                        <span class="version-name clickable-title" @onclick="() => version.IsExpanded = !version.IsExpanded">
+                                            @version.Name
+                                        </span>
+                                        @if (version.IsLatest)
+                                        {
+                                            <span class="badge-latest">latest</span>
+                                        }
+                                    </div>
+                                    <div class="version-meta-info">
+                                        <span class="meta-avatar">👤</span>
+                                        <span class="meta-user">username</span>
+                                        <span class="meta-time">• released this X days ago</span>
+                                    </div>
+                                    <p class="version-desc">Description</p>
+                                </div>
+                            </div>
+                            <button class="btn-compare-dropdown" @onclick="StartCompare">
+                                Compare <span class="arrow-down">▼</span>
+                            </button>
+                        </div>
+
+                        @if (version.IsExpanded)
+                        {
+                            <!-- Phần bảng mở rộng -->
+                            <div class="version-expanded-table">
+                                <div class="version-file-row table-header">
+                                    <div class="f-col">File name</div>
+                                    <div class="f-col">Size</div>
+                                    <div class="f-col">Last updated time</div>
+                                    <div class="f-col f-actions"></div>
+                                </div>
+                                <div class="version-file-row @(version.IsLatest ? "selected-blue" : "")">
+                                    <div class="f-col">document_v4.docx</div>
+                                    <div class="f-col">1.2 MB</div>
+                                    <div class="f-col">May 14, 2026</div>
+                                    <div class="f-col f-actions">
+                                        <button class="act-btn">↩</button>
+                                        <button class="act-btn">✎</button>
+                                        <button class="act-btn">🗑</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- COMPARE VIEW -->
+            <div class="compare-container">
+                <div class="compare-top-header">
+                    <h2 class="compare-title">Comparing changes</h2>
+                    <div class="compare-right-meta">
+                        <span class="doc-ver-badge">Document Version</span>
+                        <span class="contributors-count">👤 X contributors</span>
+                    </div>
+                </div>
+
+                <div class="compare-selector-bar">
+                    <div class="ver-pill">VERSION 4.0</div>
+                    <span class="swap-icon">⇆</span>
+                    <div class="ver-pill">VERSION 3.9</div>
+                    <button class="btn-close-compare" @onclick="StopCompare">✕</button>
+                </div>
+
+                <div class="compare-grid">
+                    <div class="compare-panel-new">
+                        <!-- Nội dung v4.0 -->
+                    </div>
+                    <div class="compare-panel-new">
+                        <!-- Nội dung v3.9 -->
+                    </div>
+                </div>
+            </div>
+        }
+    </main>
+</div>
+
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+<style>
+    /* 1. KHÔI PHỤC CSS GỐC ĐỂ HẾT VỠ GIAO DIỆN */
+    .ws-container {
+        font-family: sans-serif;
+        background: #fff;
+        min-height: 100vh;
+    }
+
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .ws-tabs-bar {
+        background: #2d2d2d;
+        padding: 10px 20px 0;
+        display: flex;
+        gap: 5px;
+    }
+
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        padding: 10px 15px;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+    }
+
+        .tab-item.active {
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+
+    .ws-content-area {
+        padding: 20px;
+    }
+
+    .directory-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .directory-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .file-search-wrap {
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 5px 15px;
+        display: flex;
+        align-items: center;
+    }
+
+        .file-search-wrap input {
+            border: none;
+            outline: none;
+            margin-left: 5px;
+            width: 200px;
+        }
+
+    .btn-add-file, .btn-more {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* 2. CSS CHO TÍNH NĂNG MỞ RỘNG (image_1db21a.png) */
+    .version-card {
+        border: 1px solid #000;
+        border-radius: 12px;
+        background: #fff;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .version-card-header {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .clickable-title {
+        cursor: pointer;
+        color: #000;
+        transition: color 0.2s;
+    }
+
+        .clickable-title:hover {
+            color: #0078d4;
+            text-decoration: underline;
+        }
+
+    .version-name {
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .badge-latest {
+        background: #e0e0e0;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        margin-left: 10px;
+        border: 1px solid #999;
+    }
+
+    .version-meta-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 5px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .version-desc {
+        color: #666;
+        font-size: 14px;
+        margin: 10px 0 0 0;
+    }
+
+    .btn-compare-dropdown {
+        background: #fff;
+        border: 1px solid #000;
+        border-radius: 6px;
+        padding: 5px 12px;
+        cursor: pointer;
+    }
+
+    .version-expanded-table {
+        border-top: 1px solid #eee;
+        background: #fafafa;
+    }
+
+    .version-file-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 2fr 1fr;
+        padding: 12px 20px;
+        align-items: center;
+    }
+
+    .table-header {
+        font-weight: bold;
+        color: #888;
+        border-bottom: 1px solid #eee;
+    }
+
+    .f-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
+    .act-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    /* 3. CSS CHO GIAO DIỆN COMPARE MỚI (image_1e0433.png) */
+    .compare-top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .doc-ver-badge {
+        background: #1a1a1a;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .contributors-count {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .compare-selector-bar {
+        border: 1.5px solid #000;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        gap: 15px;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .ver-pill {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .swap-icon {
+        font-size: 20px;
+    }
+
+    .btn-close-compare {
+        position: absolute;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .compare-panel-new {
+        border: 2px solid #000;
+        border-radius: 35px;
+        min-height: 450px;
+        background: #fff;
+    }
+
+    /* Các CSS Modals khác giữ nguyên... */
+    .dropdown-wrapper {
+        position: relative;
+    }
+
+    .dropdown-menu-custom {
+        position: absolute;
+        top: 110%;
+        right: 0;
+        background: #1a1a1a;
+        min-width: 180px;
+        border-radius: 8px;
+        z-index: 100;
+        padding: 5px 0;
+    }
+
+    .dropdown-link {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        color: white;
+        text-align: left;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+</style>
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+    private bool showAddMenu = false;
+    private bool showMoreMenu = false;
+    private string versionSearchTerm = "";
+    private bool isComparing = false;
+
+    private List<VersionModel> Versions = new()
+    {
+        new VersionModel { Id = 1, Name = "Version 4.0", IsLatest = true, IsExpanded = false },
+        new VersionModel { Id = 2, Name = "Version 3.9", IsLatest = false, IsExpanded = false }
+    };
+
+    private void ToggleAddMenu() { showAddMenu = !showAddMenu; showMoreMenu = false; }
+    private void ToggleMoreMenu() { showMoreMenu = !showMoreMenu; showAddMenu = false; }
+    private void StartCompare() => isComparing = true;
+    private void StopCompare() => isComparing = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+
+    public class VersionModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public bool IsLatest { get; set; }
+        public bool IsExpanded { get; set; } 
+    }
+}

@@ -1,0 +1,1214 @@
+﻿@page "/workspace-document"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="ws-shell">
+
+    <!-- TOPBAR -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Username</span>
+        </div>
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    <!-- TABS -->
+    <nav class="ws-tabs">
+
+        <button class="tab active">
+            📄 Document
+        </button>
+
+        <button class="tab">
+            ✉ Feedback
+        </button>
+
+        <button class="tab">
+            🕒 Versioning
+        </button>
+
+        <button class="tab">
+            📋 Logs
+        </button>
+
+        <button class="tab">
+            ⚙ Settings
+        </button>
+
+    </nav>
+
+    <!-- MAIN -->
+    <main class="ws-main">
+
+        <!-- LEFT -->
+        <section class="ws-content">
+
+            <div class="page-heading">
+                <span>👤</span>
+                <h1>Workspace</h1>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar-row">
+
+                <div class="file-search">
+
+                    <input type="text"
+                           placeholder="Search files..." />
+
+                    <span class="search-icon small">
+                        ⌕
+                    </span>
+
+                </div>
+
+                <!-- ADD FILE -->
+                <div class="addfile-wrap">
+
+                    <button type="button"
+                            class="addfile-btn"
+                            @onclick="ToggleAddMenu">
+
+                        <span>Add file</span>
+                        <span>▼</span>
+
+                    </button>
+
+                    @if (showAddMenu)
+                    {
+                        <div class="dropdown-menu">
+
+                            <button class="dropdown-item">
+                                ＋ Create new folder
+                            </button>
+
+                            <button class="dropdown-item">
+                                ⤴ Upload files
+                            </button>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- FILE LIST -->
+            <section class="file-list-card">
+
+                <div class="file-list-card__header">
+
+                    <div class="author-block">
+
+                        <span class="author-icon">👤</span>
+
+                        <div>
+                            <div class="author-name">
+                                Username
+                            </div>
+
+                            <div class="author-note">
+                                Update description
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <span class="timestamp">
+                        X hours ago
+                    </span>
+
+                </div>
+
+                <!-- ROW -->
+                <div class="file-row folder">
+
+                    <div class="item-left">
+                        <span class="item-icon">📁</span>
+                        <span>Folder name</span>
+                    </div>
+
+                    <div class="item-desc">
+                        Last updated description
+                    </div>
+
+                    <div class="item-time">
+                        X hours ago
+                    </div>
+
+                </div>
+
+                <div class="file-row">
+
+                    <div class="item-left">
+                        <span class="item-icon">📄</span>
+                        <span>File name</span>
+                    </div>
+
+                    <div class="item-desc">
+                        Last updated description
+                    </div>
+
+                    <div class="item-time">
+                        X hours ago
+                    </div>
+
+                </div>
+
+                <div class="file-row">
+
+                    <div class="item-left">
+                        <span class="item-icon">📄</span>
+                        <span>File name</span>
+                    </div>
+
+                    <div class="item-desc">
+                        Last updated description
+                    </div>
+
+                    <div class="item-time">
+                        X hours ago
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- GUIDELINE -->
+            <section class="guideline-card">
+
+                <div class="guideline-card__header">
+
+                    <div class="guideline-title">
+                        📖 GUIDELINE
+                    </div>
+
+                    <button class="edit-badge"
+                            @onclick="ToggleGuidelineEdit">
+                        ✎
+                    </button>
+
+                </div>
+
+                @if (isEditingGuideline)
+                {
+                    <textarea class="guideline-editor"
+                              placeholder="Write guideline...">
+                    </textarea>
+
+                    <div class="action-row">
+
+                        <button class="btn btn-secondary"
+                                @onclick="CancelGuidelineEdit">
+                            Cancel
+                        </button>
+
+                        <button class="btn btn-primary"
+                                @onclick="SaveGuideline">
+                            Save
+                        </button>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="guideline-view">
+                        Workspace guideline content goes here.
+                    </div>
+                }
+
+            </section>
+
+        </section>
+
+        <!-- RIGHT -->
+        <aside class="ws-sidebar">
+
+            <!-- ABOUT -->
+            <section class="about-card">
+
+                <div class="about-card__header">
+
+                    <h2>About</h2>
+
+                    <button class="icon-btn icon-btn--plain">
+                        ⚙
+                    </button>
+
+                </div>
+
+                <div class="about-subtitle">
+                    📄 Description
+                </div>
+
+                <button class="description-box"
+                        @onclick="OpenDescriptionModal">
+                </button>
+
+            </section>
+
+            <!-- COLLAB -->
+            <section class="collab-card">
+
+                <div class="collab-title">
+
+                    <span>👤</span>
+
+                    <span>Co-Writer</span>
+
+                    <span class="count-badge">
+                        3
+                    </span>
+
+                </div>
+
+                <ul class="collab-list">
+
+                    <li>👤 Username</li>
+                    <li>👤Username</li>
+                    <li>👤Username</li>
+
+                </ul>
+
+            </section>
+
+        </aside>
+
+    </main>
+
+    <!-- MODAL -->
+    @if (showMenu)
+    {
+        <div class="drawer-menu">
+            <div class="drawer-header">
+                <i class="user-large-icon">👤</i>
+                <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+            </div>
+            <nav class="drawer-nav">
+                <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+                <div class="drawer-nav-item">✉ Feedback</div>
+                <div class="drawer-nav-item">📞 Contact Us</div>
+                <div class="nav-divider"></div>
+                <div class="nav-label">Top workspaces</div>
+                <div class="nav-search-wrap">
+                    <input type="text" placeholder="Search workspace..." />
+                </div>
+                <div class="drawer-nav-item small">👤 Project Alpha</div>
+                <div class="drawer-nav-item small">👤 Team Beta</div>
+            </nav>
+        </div>
+        <div class="overlay" @onclick="ToggleMenu"></div>
+    }
+
+    @if (showSearch)
+    {
+        <div class="search-modal">
+            <div class="search-modal-bar">
+                <span>⌕</span>
+                <input type="text" placeholder="Search anything..." autofocus />
+                <button @onclick="ToggleSearch">✕</button>
+            </div>
+        </div>
+        <div class="overlay" @onclick="ToggleSearch"></div>
+    }
+
+    @if (showJoin)
+    {
+        <div class="join-dropdown">
+            <div class="dropdown-header">
+                <span style="font-weight: bold;">Join new workspace</span>
+                <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+            </div>
+            <div class="dropdown-body">
+                <div class="input-row-dark">
+                    <i>👤</i>
+                    <input type="text" placeholder="Username" />
+                    <button class="copy-btn">⧉</button>
+                </div>
+                <div class="tab-row-dark">
+                    <span class="active">HTTPS</span>
+                    <span>Users</span>
+                    <span>Workspace ID</span>
+                </div>
+                <div class="input-row-dark">
+                    <input type="text" placeholder="Workspace Link/ID" />
+                    <button class="copy-btn">⧉</button>
+                </div>
+                <button class="submit-join-btn">Send request to join workspace</button>
+            </div>
+        </div>
+        <div class="overlay transparent" @onclick="ToggleJoin"></div>
+    }
+
+    @if (showProfile)
+    {
+        <div class="profile-dropdown">
+            <div class="profile-user-info">
+                <i>👤</i>
+                <span>Username</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+            <div class="drop-item">📁 Workspaces</div>
+            <div class="drop-item">✉ Feedback</div>
+            <div class="drop-item">⚙ Settings</div>
+            <div class="drop-item logout">↪ Sign out</div>
+        </div>
+        <div class="overlay transparent" @onclick="ToggleProfile"></div>
+    }
+    @if (showDescriptionModal)
+    {
+        <div class="modal-backdrop"
+             @onclick="CloseDescriptionModal">
+
+            <div class="modal-card"
+                 @onclick:stopPropagation="true">
+
+                <div class="modal-card__title">
+                    Edit workplace description
+                </div>
+
+                <textarea class="modal-textarea"
+                          placeholder="Workspace Description">
+                </textarea>
+
+                <div class="action-row">
+
+                    <button class="btn btn-secondary"
+                            @onclick="CloseDescriptionModal">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-primary"
+                            @onclick="SaveDescription">
+                        Save
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<style>
+
+    :root {
+        --bg: #f5f5f5;
+        --border: #1f1f1f;
+        --topbar: #262626;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .ws-shell {
+        min-height: 100vh;
+        background: var(--bg);
+        font-family: Arial, sans-serif;
+    }
+
+    .ws-topbar {
+        height: 76px;
+        background: var(--topbar);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        color: white;
+    }
+
+    /* ADD file-list-card__header */
+    .ws-topbar__left,
+    .ws-topbar__actions,
+    .toolbar-row,
+    .page-heading,
+    .file-row,
+    .file-list-card__header,
+    .guideline-card__header,
+    .about-card__header,
+    .action-row {
+        display: flex;
+        align-items: center;
+    }
+
+    .ws-topbar__left {
+        gap: 14px;
+    }
+
+    .brand-mark {
+        width: 34px;
+        height: 34px;
+        background: #ddd;
+    }
+
+    .icon-btn {
+        width: 36px;
+        height: 36px;
+        border: 1px solid white;
+        border-radius: 10px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+    }
+
+    .ws-topbar__search {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,.08);
+        padding: 0 12px;
+        width: 300px;
+        height: 34px;
+    }
+
+        .ws-topbar__search input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .join-btn {
+        height: 36px;
+        padding: 0 18px;
+        border: 1px solid white;
+        border-radius: 10px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+    }
+
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .ws-tabs {
+        height: 54px;
+        background: #2d2d2d;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 20px;
+    }
+
+    .tab {
+        border: none;
+        background: transparent;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 12px;
+        cursor: pointer;
+    }
+
+        .tab.active {
+            background: white;
+            color: black;
+        }
+
+    .ws-main {
+        overflow: visible;
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 24px;
+        padding: 20px;
+    }
+
+    .divider {
+        height: 2px;
+        background: black;
+        margin: 12px 0 20px;
+    }
+
+    /* SEARCH + BUTTON */
+    .toolbar-row {
+        margin-bottom: 12px;
+        gap: 12px;
+    }
+
+    .file-search {
+        position: relative;
+        flex: 1;
+    }
+
+        .file-search input {
+            width: 100%;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid black;
+            padding: 0 40px 0 14px;
+        }
+
+    .search-icon.small {
+        position: absolute;
+        right: 14px;
+        top: 8px;
+    }
+
+    .addfile-wrap {
+        position: relative;
+        z-index: 500;
+    }
+
+    .addfile-btn {
+        height: 36px;
+        padding: 0 16px;
+        border-radius: 10px;
+        border: none;
+        background: #444;
+        color: white;
+        cursor: pointer;
+    }
+
+    .dropdown-menu {
+        display: block;
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 220px;
+        background: #1f1f1f;
+        border: 1px solid #444;
+        border-radius: 12px;
+        overflow: hidden;
+        z-index: 300;
+        box-shadow: 0 10px 30px rgba(0,0,0,.25);
+        animation: fadeDown .15s ease;
+    }
+
+    .dropdown-item {
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: white;
+        text-align: left;
+        padding: 14px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background .15s ease;
+    }
+
+        .dropdown-item:hover {
+            background: rgba(255,255,255,.08);
+        }
+    @@keyframes fadeDown {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .file-list-card,
+    .guideline-card,
+    .description-box {
+        background: white;
+        border: 1px solid black;
+        border-radius: 10px;
+    }
+
+    /* HEADER BLACK */
+    .file-list-card__header {
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 12px;
+        background: #222;
+        color: white;
+    }
+
+    /* USER BLOCK */
+    .author-block {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .author-icon {
+        font-size: 20px;
+    }
+
+    .author-block > div {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    .author-name {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .author-note {
+        font-size: 12px;
+        opacity: .85;
+    }
+
+    /* X HOURS AGO */
+    .timestamp {
+        margin-left: auto;
+        text-align: right;
+        white-space: nowrap;
+        min-width: 100px;
+    }
+
+    /* FILE ROW */
+    .file-row {
+        padding: 12px;
+        border-top: 1px solid #ccc;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .item-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 220px;
+    }
+
+    .item-desc {
+        flex: 1;
+        padding-left: 20px;
+    }
+
+    .item-time {
+        margin-left: auto;
+        text-align: right;
+        white-space: nowrap;
+        min-width: 100px;
+    }
+
+    .guideline-card {
+        margin-top: 20px;
+    }
+
+    .guideline-card__header {
+        justify-content: space-between;
+        padding: 12px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .guideline-view {
+        padding: 16px;
+        min-height: 140px;
+    }
+
+    .guideline-editor {
+        width: calc(100% - 32px);
+        margin: 16px;
+        min-height: 140px;
+    }
+
+    .edit-badge {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background: black;
+        color: white;
+        cursor: pointer;
+    }
+
+    .description-box {
+        width: 100%;
+        height: 160px;
+    }
+
+    .count-badge {
+        background: black;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+    }
+
+    .collab-list {
+        list-style: none;
+        padding: 0;
+    }
+
+        .collab-list li {
+            margin-bottom: 14px;
+        }
+
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-card {
+        width: 500px;
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .modal-card__title {
+        background: #222;
+        color: white;
+        padding: 14px;
+    }
+
+    .modal-textarea {
+        width: calc(100% - 32px);
+        margin: 16px;
+        min-height: 140px;
+    }
+
+    .action-row {
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 0 16px 16px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: black;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #444;
+        color: white;
+    }
+
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+</style>
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+    private bool showAddMenu;
+    private bool showDescriptionModal;
+    private bool isEditingGuideline;
+
+    private void ToggleAddMenu()
+    {
+        showAddMenu = !showAddMenu;
+
+        Console.WriteLine(showAddMenu);
+    }
+
+    private void OpenDescriptionModal()
+    {
+        showDescriptionModal = true;
+    }
+
+    private void CloseDescriptionModal()
+    {
+        showDescriptionModal = false;
+    }
+
+    private void SaveDescription()
+    {
+        showDescriptionModal = false;
+    }
+
+    private void ToggleGuidelineEdit()
+    {
+        isEditingGuideline = !isEditingGuideline;
+    }
+
+    private void CancelGuidelineEdit()
+    {
+        isEditingGuideline = false;
+    }
+
+    private void SaveGuideline()
+    {
+        isEditingGuideline = false;
+    }
+
+}
+```

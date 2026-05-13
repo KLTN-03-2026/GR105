@@ -1,0 +1,434 @@
+﻿@page "/settings/co-writers"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="ws-container">
+    <!-- TOPBAR -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Username / Workspace</span>
+        </div>
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    <!-- TAB NAVIGATION -->
+    <nav class="ws-tabs-bar">
+        <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docread")'>📄 Document</button>
+        <button class="tab-item">✉ Feedback</button>
+        <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docver")'>🕒 Versioning</button>
+        <button class="tab-item">📋 Logs</button>
+        <button class="tab-item active">⚙ Settings</button>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="settings-layout">
+        <aside class="settings-sidebar">
+            <button class="side-item" @onclick='() => Navigation.NavigateTo("/settings/general")'>
+                <span class="icon">⚙</span> General
+            </button>
+            <button class="side-item active" @onclick='() => Navigation.NavigateTo("/settings/co-writers")'>
+                <span class="icon">👥</span> Co-Writers
+            </button>
+            <button class="side-item" @onclick='() => Navigation.NavigateTo("/settings/security")'>
+                <span class="icon">🛡</span> Security
+            </button>
+        </aside>
+
+        <main class="settings-content">
+            <h2 class="content-title">Co-Writers</h2>
+            <hr class="title-divider" />
+
+            <!-- ADD PEOPLE -->
+            <section class="settings-section">
+                <h3 class="sub-title">Add people</h3>
+                <p class="helper-text">Search by username, full name, or email</p>
+                <div class="add-people-group">
+                    <div class="search-input-wrapper">
+                        <span class="input-icon">🔍</span>
+                        <input type="text" class="people-input" placeholder="Find people" />
+                    </div>
+                    <button class="btn-add-ws">Add to workspace</button>
+                </div>
+            </section>
+
+            <!-- MANAGE ACCESS -->
+            <section class="settings-section">
+                <h3 class="sub-title">Manage access</h3>
+
+                <div class="access-table">
+                    <div class="table-header">
+                        <div class="header-left">
+                            <button class="btn-select-all">➖ Select All</button>
+                        </div>
+                        <div class="header-right">
+                            <div class="mini-search">
+                                <span>🔍</span>
+                                <input type="text" placeholder="Search co-writer..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-list">
+                        @foreach (var user in CoWriters)
+                        {
+                            <div class="user-row">
+                                <div class="row-left">
+                                    <input type="checkbox" class="row-checkbox" @bind="user.IsSelected" />
+                                    <i class="user-avatar">👤</i>
+                                    <div class="user-info">
+                                        <div class="user-name">@user.Name</div>
+                                        <div class="user-subtext">@user.Role</div>
+                                    </div>
+                                </div>
+                                <div class="row-right">
+                                    <div class="role-selector">
+                                        Role: @user.Role <span class="arrow">▼</span>
+                                    </div>
+                                    <button class="btn-delete">🗑</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<style>
+    /* RESET & BASE */
+    .ws-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #fff;
+        min-height: 100vh;
+        color: #000;
+    }
+
+    /* TOPBAR */
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .app-logo {
+        width: 30px;
+        height: 30px;
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    .nav-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn-join {
+        background: #333;
+        border: 1px solid #444;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    /* TABS */
+    .ws-tabs-bar {
+        background: #2d2d2d;
+        padding: 10px 20px 0;
+        display: flex;
+        gap: 5px;
+    }
+
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        font-size: 14px;
+    }
+
+        .tab-item.active {
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+
+    /* LAYOUT */
+    .settings-layout {
+        display: flex;
+        padding: 30px;
+        gap: 50px;
+    }
+
+    .settings-sidebar {
+        width: 220px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .side-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        background: transparent;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 10px;
+        text-align: left;
+        width: 100%;
+    }
+
+        .side-item.active {
+            background: #1a1a1a;
+            color: white;
+        }
+
+    /* CONTENT */
+    .settings-content {
+        flex: 1;
+    }
+
+    .content-title {
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .title-divider {
+        border: 0;
+        border-top: 2px solid #000;
+        margin-bottom: 30px;
+        opacity: 1;
+    }
+
+    .sub-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .helper-text {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    /* ADD PEOPLE SECTION */
+    .add-people-group {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    .search-input-wrapper {
+        border: 1.5px solid #000;
+        border-radius: 10px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .people-input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .btn-add-ws {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    /* ACCESS TABLE */
+    .access-table {
+        border: 2.5px solid #000;
+        border-radius: 15px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .table-header {
+        padding: 12px 20px;
+        border-bottom: 2.5px solid #000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+    }
+
+    .mini-search {
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        padding: 5px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .mini-search input {
+            background: transparent;
+            border: none;
+            outline: none;
+            width: 180px;
+            font-size: 13px;
+        }
+
+    .user-row {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2.5px solid #000;
+    }
+
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+    .row-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .row-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: #000;
+        cursor: pointer;
+    }
+
+    .user-avatar {
+        font-size: 30px;
+        color: #333;
+    }
+
+    .user-name {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .user-subtext {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .row-right {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+
+    .role-selector {
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .btn-delete {
+        background: #fff;
+        border: 1px solid #ff4d4d;
+        color: #ff4d4d;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-delete:hover {
+            background: #ff4d4d;
+            color: #fff;
+        }
+</style>
+
+@code {
+    private List<UserMember> CoWriters = new()
+    {
+        new UserMember { Name = "Username", Role = "writer", IsSelected = true },
+        new UserMember { Name = "Username", Role = "reader", IsSelected = false },
+        new UserMember { Name = "Username", Role = "admin", IsSelected = false }
+    };
+
+    public class UserMember
+    {
+        public string Name { get; set; } = "";
+        public string Role { get; set; } = "";
+        public bool IsSelected { get; set; }
+    }
+
+    private bool showMenu, showSearch, showJoin, showProfile;
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
