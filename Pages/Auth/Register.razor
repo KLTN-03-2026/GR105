@@ -1,0 +1,270 @@
+﻿@page "/register"
+
+<div class="register-viewport">
+    <div class="cash-register-container">
+        
+        <div class="customer-display-unit">
+            <div class="display-box">
+                <div class="glass-reflection"></div>
+                <span class="digital-text">Success</span>
+            </div>
+            <div class="support-pole"></div>
+        </div>
+
+        <div class="main-monitor-unit">
+            <div class="bezel">
+                <div class="inner-screen">
+                    <div class="screen-visual">
+                        <div class="placeholder-img"></div>
+                    </div>
+
+                    <div class="screen-form">
+                        <h2 class="product-title">Sign up for &lt;PRODUCT NAME&gt;</h2>
+                        
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" spellcheck="false" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" />
+                        </div>
+
+                        <button class="signup-trigger" type="submit">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="machine-base-unit">
+            <div class="keyboard-layout">
+                
+                <div class="left-keypad">
+                    @for (int i = 0; i < 9; i++)
+                    {
+                        <div class="mechanical-key"></div>
+                    }
+                </div>
+                
+                <div class="right-control-panel">
+                    <div class="interactive-group">
+                        
+                        <div class="function-row">
+                            <div class="mechanical-key small"></div>
+                            <div class="mechanical-key small"></div>
+                            <div class="mechanical-key small"></div>
+                        </div>
+
+                        <div class="scanner-unit">
+                            <div class="scanner-glass"></div>
+                            <div class="status-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="cash-drawer-slot">
+                <div class="drawer-handle"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    :root {
+        --machine-black: #1a1a1a;
+        --machine-gray: #424242;
+        --key-color: #d1d1d1;
+        --key-shadow: #a0a0a0;
+        --digital-green: #00ff41;
+        --screen-bg: #ffffff;
+        --input-radius: 12px;
+    }
+
+    /* Layout Tổng thể */
+    .register-viewport { 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        background-color: #f0f0f0; 
+        padding: 20px; 
+        font-family: 'Inter', sans-serif; 
+    }
+
+    .cash-register-container { 
+        position: relative; 
+        width: 100%; 
+        max-width: 850px; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+    }
+
+    /* Màn hình phụ */
+    .customer-display-unit { 
+        position: absolute; 
+        top: -110px; 
+        right: 12%; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        z-index: 1; 
+    }
+    .display-box { 
+        background: var(--machine-black); 
+        width: 160px; 
+        height: 75px; 
+        border: 4px solid #333; 
+        border-radius: 4px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        position: relative; 
+        overflow: hidden; 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
+    }
+    .digital-text { color: var(--digital-green); font-family: 'Courier New', monospace; font-weight: 900; font-size: 24px; text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+    .support-pole { width: 20px; height: 45px; background: linear-gradient(90deg, #222, #444, #222); margin-top: -2px; }
+
+    /* Màn hình chính */
+    .main-monitor-unit { 
+        width: 850px; 
+        background: var(--machine-black); 
+        padding: 18px; 
+        border-radius: 10px; 
+        z-index: 3; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+    }
+    .inner-screen { background: var(--screen-bg); border: 2px solid #000; display: flex; padding: 40px 30px; gap: 30px; min-height: 340px; }
+    .screen-visual { flex: 1; }
+    .placeholder-img { width: 100%; height: 100%; background: #e5e5e5; border-radius: 4px; }
+    .screen-form { flex: 1.2; }
+    .product-title { font-size: 22px; font-weight: 800; margin-bottom: 25px; color: #000; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 12px; border: 1.5px solid #ccc; border-radius: var(--input-radius); }
+    .signup-trigger { width: 100%; padding: 14px; background: #252525; color: #fff; border: none; border-radius: var(--input-radius); font-weight: 700; cursor: pointer; margin-top: 10px; }
+
+    /* THÂN MÁY & PHÍM BẤM */
+    .machine-base-unit {
+        width: 820px;
+        background: var(--machine-gray);
+        margin-top: -10px;
+        padding: 40px;
+        border-radius: 6px 6px 0 0;
+        border-top: 8px solid #222;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .keyboard-layout {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 40px;
+    }
+
+    .left-keypad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    /* Hiệu ứng phím cơ học */
+    .mechanical-key {
+        width: 75px;
+        height: 48px;
+        background: var(--key-color);
+        border-radius: 4px;
+        border-bottom: 6px solid var(--key-shadow);
+        cursor: pointer;
+        transition: all 0.1s ease;
+    }
+    .mechanical-key:active {
+        border-bottom-width: 2px;
+        transform: translateY(4px);
+    }
+
+    /* Phím nhỏ bên phải */
+    .mechanical-key.small {
+        width: 55px;
+        height: 35px;
+        border-bottom-width: 4px;
+    }
+
+    /* Cụm tương tác bên phải */
+    .interactive-group {
+        display: flex;
+        align-items: flex-end;
+        gap: 25px; 
+    }
+
+    .function-row {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .scanner-unit {
+        width: 220px;
+        background: #2a2a2a;
+        padding: 12px;
+        border-radius: 4px;
+        border: 1px solid #111;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .scanner-glass {
+        height: 30px;
+        background: #111;
+        border-radius: 2px;
+        margin-bottom: 12px;
+    }
+
+    .status-dots {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .status-dots span {
+        width: 14px;
+        height: 14px;
+        background: #666;
+        border-radius: 50%;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    /* Ngăn kéo */
+    .cash-drawer-slot {
+        width: 100%;
+        height: 110px;
+        background: #111;
+        border-radius: 4px;
+        border-top: 5px solid #000;
+        position: relative;
+    }
+    .drawer-handle {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 220px;
+        height: 12px;
+        background: #222;
+        border-radius: 6px;
+    }
+
+    .glass-reflection {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+</style>

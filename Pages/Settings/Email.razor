@@ -1,0 +1,823 @@
+﻿@page "/email"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="app-wrapper">
+
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Dashboard</span>
+        </div>
+
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span>🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/notifications")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <div class="main-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="profile-header">
+                <span class="avatar-icon">👤</span>
+                <span class="profile-name">Username</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/profile" class="nav-link">
+                    <span class="icon">👤</span> Profile
+                </a>
+
+                <a href="/account" class="nav-link">
+                    <span class="icon">⚙️</span> Account
+                </a>
+
+                <a href="/appearance" class="nav-link">
+                    <span class="icon">🎨</span> Appearance
+                </a>
+
+                <a href="/notifications" class="nav-link">
+                    <span class="icon">🔔</span> Notification
+                </a>
+
+                <a href="/workspace" class="nav-link">
+                    <span class="icon">📁</span> Workspace
+                </a>
+
+                <a href="/email" class="nav-link active">
+                    <span class="icon">✉️</span> Email
+                </a>
+            </nav>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="main-content">
+
+            <div class="page-header">
+                <h1 class="page-title">Email</h1>
+                <button class="btn-personal-profile">
+                    Personal profile
+                </button>
+            </div>
+
+            <div class="settings-body">
+
+                <!-- EMAIL LIST -->
+                <section class="email-list-card">
+
+                    <div class="email-row">
+                        <span class="email-text">user@email.com</span>
+
+                        <div class="status-badge verified">
+                            Verified
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-remove">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="email-row">
+                        <span class="email-text">user2@email.com</span>
+
+                        <div class="status-badge verified">
+                            Verified
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-remove">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="email-row">
+                        <span class="email-text">user3@email.com</span>
+
+                        <div class="status-badge unverified">
+                            Unverified
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-resend">
+                                Re-send
+                            </button>
+
+                            <button class="btn-remove">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- ADD EMAIL -->
+                <section class="add-email-section">
+
+                    <h3 class="section-label">
+                        Add email address
+                    </h3>
+
+                    <div class="add-email-group">
+                        <input type="email"
+                               class="form-control-add"
+                               placeholder="Enter email address" />
+
+                        <button class="btn-black-add">
+                            Add
+                        </button>
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- DRAWER MENU -->
+@if (showMenu)
+{
+    <div class="drawer-menu">
+
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+
+            <button class="close-drawer"
+                    @onclick="ToggleMenu">
+                ✕
+            </button>
+        </div>
+
+        <nav class="drawer-nav">
+
+            <div class="drawer-nav-item"
+                 @onclick='() => Navigation.NavigateTo("/")'>
+                ⌂ Dashboard
+            </div>
+
+            <div class="drawer-nav-item">
+                ✉ Feedback
+            </div>
+
+            <div class="drawer-nav-item">
+                📞 Contact Us
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <div class="nav-label">
+                Top workspaces
+            </div>
+
+            <div class="nav-search-wrap">
+                <input type="text"
+                       placeholder="Search workspace..." />
+            </div>
+
+            <div class="drawer-nav-item small">
+                👤 Project Alpha
+            </div>
+
+            <div class="drawer-nav-item small">
+                👤 Team Beta
+            </div>
+
+        </nav>
+    </div>
+
+    <div class="overlay"
+         @onclick="ToggleMenu"></div>
+}
+
+<!-- SEARCH MODAL -->
+@if (showSearch)
+{
+    <div class="search-modal">
+
+        <div class="search-modal-bar">
+            <span>⌕</span>
+
+            <input type="text"
+                   placeholder="Search anything..."
+                   autofocus />
+
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+
+    <div class="overlay"
+         @onclick="ToggleSearch"></div>
+}
+
+<!-- JOIN DROPDOWN -->
+@if (showJoin)
+{
+    <div class="join-dropdown">
+
+        <div class="dropdown-header">
+            <span style="font-weight:bold;">
+                Join new workspace
+            </span>
+
+            <button @onclick="ToggleJoin"
+                    style="background:none;border:none;color:white;cursor:pointer;">
+                ✕
+            </button>
+        </div>
+
+        <div class="dropdown-body">
+
+            <div class="input-row-dark">
+                <i>👤</i>
+
+                <input type="text"
+                       placeholder="Username" />
+
+                <button class="copy-btn">⧉</button>
+            </div>
+
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+
+            <div class="input-row-dark">
+                <input type="text"
+                       placeholder="Workspace Link/ID" />
+
+                <button class="copy-btn">⧉</button>
+            </div>
+
+            <button class="submit-join-btn">
+                Send request to join workspace
+            </button>
+
+        </div>
+    </div>
+
+    <div class="overlay transparent"
+         @onclick="ToggleJoin"></div>
+}
+
+<!-- PROFILE DROPDOWN -->
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="drop-item"
+             @onclick='() => Navigation.NavigateTo("/profile-detail")'>
+            👤 Profile
+        </div>
+
+        <div class="drop-item">
+            📁 Workspaces
+        </div>
+
+        <div class="drop-item">
+            ✉ Feedback
+        </div>
+
+        <div class="drop-item">
+            ⚙ Settings
+        </div>
+
+        <div class="drop-item logout">
+            ↪ Sign out
+        </div>
+
+    </div>
+
+    <div class="overlay transparent"
+         @onclick="ToggleProfile"></div>
+}
+
+@code {
+
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+
+    :root {
+        --dark-bg: #1a1a1a;
+        --header-h: 65px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: #f5f5f5;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .app-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* TOPBAR */
+
+    .top-navbar {
+        height: var(--header-h);
+        background: var(--dark-bg);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #d9d9d9;
+        border-radius: 4px;
+    }
+
+    .nav-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .search-box {
+        width: 360px;
+        background: #2d2d2d;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            width: 100%;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #666;
+        color: white;
+        padding: 8px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    /* MAIN */
+
+    .main-container {
+        display: flex;
+        flex: 1;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+        width: 280px;
+        background: #000;
+        color: #888;
+        padding-top: 20px;
+        flex-shrink: 0;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid #222;
+        color: white;
+        gap: 12px;
+    }
+
+    .profile-name {
+        font-weight: 700;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 25px;
+        color: inherit;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .nav-link:hover {
+            background: #151515;
+            color: white;
+        }
+
+        .nav-link.active {
+            background: white;
+            color: black;
+            margin-left: 15px;
+            border-radius: 12px 0 0 12px;
+            font-weight: 700;
+        }
+
+    /* CONTENT */
+
+    .main-content {
+        flex: 1;
+        background: white;
+        padding-top: 40px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #000;
+        padding: 0 60px 15px;
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-size: 2.3rem;
+        font-weight: 800;
+    }
+
+    .btn-personal-profile {
+        background: #111;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .settings-body {
+        padding: 0 60px;
+        max-width: 1100px;
+    }
+
+    /* EMAIL CARD */
+
+    .email-list-card {
+        border: 1px solid #ddd;
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 45px;
+    }
+
+    .email-row {
+        display: flex;
+        align-items: center;
+        padding: 24px 30px;
+        border-bottom: 1px solid #eee;
+        gap: 20px;
+    }
+
+        .email-row:last-child {
+            border-bottom: none;
+        }
+
+    .email-text {
+        flex: 1;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 6px 18px;
+        border-radius: 30px;
+        font-size: .85rem;
+        font-weight: 700;
+    }
+
+        .status-badge.verified {
+            background: #35ff6a;
+            color: black;
+        }
+
+        .status-badge.unverified {
+            background: #ffe96b;
+            color: black;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-remove,
+    .btn-resend,
+    .btn-black-add {
+        background: #111;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* ADD EMAIL */
+
+    .section-label {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .add-email-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    .form-control-add {
+        flex: 1;
+        max-width: 420px;
+        border: 1.5px solid #000;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+
+    /* OVERLAY */
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    /* DRAWER */
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .close-drawer {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        border-radius: 8px;
+        color: #ccc;
+        cursor: pointer;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+
+    /* SEARCH MODAL */
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 650px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        border-radius: 14px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    /* JOIN DROPDOWN */
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        width: 400px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 16px;
+        padding: 20px;
+        z-index: 200;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            color: #888;
+            padding-bottom: 5px;
+            cursor: pointer;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    /* PROFILE DROPDOWN */
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        width: 220px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 10px;
+        z-index: 200;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        border-radius: 6px;
+        color: #ccc;
+        cursor: pointer;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+
+</style>

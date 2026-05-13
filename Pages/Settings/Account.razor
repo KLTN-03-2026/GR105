@@ -1,0 +1,780 @@
+﻿@page "/account"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="app-wrapper">
+
+    @* ===== TOPBAR GIỐNG PROFILE.RAZOR ===== *@
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Dashboard</span>
+        </div>
+
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    @* ===== ACCOUNT LAYOUT ===== *@
+    <div class="account-container">
+
+        <aside class="sidebar">
+            <div class="profile-header">
+                <span class="avatar-icon">👤</span>
+                <span class="profile-name">Username</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/profile" class="nav-link">
+                    <span class="icon">👤</span> Profile
+                </a>
+
+                <a href="/account" class="nav-link active">
+                    <span class="icon">⚙️</span> Account
+                </a>
+
+                <a href="/appearance" class="nav-link">
+                    <span class="icon">🎨</span> Appearance
+                </a>
+
+                <a href="/notifications" class="nav-link">
+                    <span class="icon">🔔</span> Notification
+                </a>
+
+                <a href="/workspace" class="nav-link">
+                    <span class="icon">📁</span> Workspace
+                </a>
+
+                <a href="/email" class="nav-link">
+                    <span class="icon">✉️</span> Email
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Account</h1>
+                <button class="btn-personal-profile">Personal profile</button>
+            </div>
+
+            <div class="settings-body">
+
+                <section class="settings-section">
+                    <h2 class="section-label">Change Username</h2>
+
+                    <div class="input-group-stack">
+                        <input type="text"
+                               placeholder="Enter new username"
+                               class="form-control-md" />
+
+                        <button class="btn-black">
+                            Change username
+                        </button>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+
+                    <div class="field-item">
+                        <h2 class="section-label">Old Password</h2>
+                        <input type="password" class="form-control-full" />
+                    </div>
+
+                    <div class="field-item">
+                        <h2 class="section-label">New Password</h2>
+                        <input type="password" class="form-control-full" />
+                    </div>
+
+                    <div class="action-footer">
+                        <button class="btn-black">
+                            Change password
+                        </button>
+
+                        <p class="auth-hint">
+                            You do not have permission to change password,
+                            require to change password?
+                            <a href="#" class="link-action">
+                                Password Reissue
+                            </a>
+                        </p>
+                    </div>
+                </section>
+
+                <section class="settings-section danger-zone">
+                    <h2 class="section-label">Delete Account</h2>
+
+                    <p class="auth-hint">
+                        You do not have permission to delete account
+                    </p>
+
+                    <button class="btn-black">
+                        Delete Account
+                    </button>
+                </section>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+@* ===== OVERLAYS / MODALS ===== *@
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+
+            <button class="close-drawer" @onclick="ToggleMenu">
+                ✕
+            </button>
+        </div>
+
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item"
+                 @onclick='() => Navigation.NavigateTo("/")'>
+                ⌂ Dashboard
+            </div>
+
+            <div class="drawer-nav-item">
+                ✉ Feedback
+            </div>
+
+            <div class="drawer-nav-item">
+                📞 Contact Us
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <div class="nav-label">
+                Top workspaces
+            </div>
+
+            <div class="nav-search-wrap">
+                <input type="text"
+                       placeholder="Search workspace..." />
+            </div>
+
+            <div class="drawer-nav-item small">
+                👤 Project Alpha
+            </div>
+
+            <div class="drawer-nav-item small">
+                👤 Team Beta
+            </div>
+        </nav>
+    </div>
+
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+
+            <input type="text"
+                   placeholder="Search anything..."
+                   autofocus />
+
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+
+        <div class="dropdown-header">
+            <span style="font-weight:bold;">
+                Join new workspace
+            </span>
+
+            <button @onclick="ToggleJoin"
+                    style="background:none;border:none;color:white;cursor:pointer;">
+                ✕
+            </button>
+        </div>
+
+        <div class="dropdown-body">
+
+            <div class="input-row-dark">
+                <i>👤</i>
+
+                <input type="text"
+                       placeholder="Username" />
+
+                <button class="copy-btn">⧉</button>
+            </div>
+
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+
+            <div class="input-row-dark">
+                <input type="text"
+                       placeholder="Workspace Link/ID" />
+
+                <button class="copy-btn">⧉</button>
+            </div>
+
+            <button class="submit-join-btn">
+                Send request to join workspace
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay transparent"
+         @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="drop-item"
+             @onclick='() => Navigation.NavigateTo("/profile-detail")'>
+            👤 Profile
+        </div>
+
+        <div class="drop-item">
+            📁 Workspaces
+        </div>
+
+        <div class="drop-item">
+            ✉ Feedback
+        </div>
+
+        <div class="drop-item">
+            ⚙ Settings
+        </div>
+
+        <div class="drop-item logout">
+            ↪ Sign out
+        </div>
+    </div>
+
+    <div class="overlay transparent"
+         @onclick="ToggleProfile"></div>
+}
+
+@code {
+
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+
+    :root {
+        --dark-bg: #1a1a1a;
+        --header-h: 65px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .app-wrapper {
+        background: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* ===== TOPBAR ===== */
+
+    .top-navbar {
+        height: var(--header-h);
+        background: var(--dark-bg);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #d9d9d9;
+        border-radius: 4px;
+    }
+
+    .nav-title {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .nav-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .search-box {
+        background: #111;
+        border-radius: 6px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        width: 420px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+            font-size: 15px;
+        }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #777;
+        color: white;
+        padding: 7px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: 1px solid #777;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    /* ===== ACCOUNT LAYOUT ===== */
+
+    .account-container {
+        display: flex;
+        flex: 1;
+        width: 100%;
+        background-color: #ffffff;
+    }
+
+    .sidebar {
+        width: 280px;
+        background-color: #000000;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+        flex-shrink: 0;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        padding: 20px 25px;
+        border-bottom: 1px solid #333;
+        margin-bottom: 10px;
+    }
+
+    .avatar-icon {
+        font-size: 1.5rem;
+        margin-right: 12px;
+    }
+
+    .profile-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 14px 25px;
+        color: #888;
+        text-decoration: none;
+        font-size: 0.95rem;
+    }
+
+        .nav-link.active {
+            background-color: #ffffff;
+            color: #000000;
+            margin-left: 15px;
+            border-radius: 12px 0 0 12px;
+            font-weight: 600;
+        }
+
+        .nav-link .icon {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+    .main-content {
+        flex: 1;
+        padding-top: 40px;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #000;
+        padding: 0 60px 15px 60px;
+        margin-bottom: 40px;
+        width: 100%;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+    }
+
+    .btn-personal-profile {
+        background-color: #1a1a1a;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .settings-body {
+        padding: 0 60px;
+        max-width: 900px;
+    }
+
+    .settings-section {
+        margin-bottom: 40px;
+    }
+
+    .section-label {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .input-group-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .form-control-md {
+        width: 100%;
+        max-width: 500px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .form-control-full {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+
+    .btn-black {
+        background-color: #000;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        width: fit-content;
+    }
+
+    .auth-hint {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 10px;
+    }
+
+    .link-action {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    .danger-zone {
+        border-top: 1px solid #eee;
+        padding-top: 30px;
+    }
+
+    /* ===== OVERLAYS ===== */
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+
+</style>

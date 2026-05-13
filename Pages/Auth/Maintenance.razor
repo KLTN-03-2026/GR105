@@ -1,0 +1,632 @@
+﻿@page "/maintenance"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<header class="top-navbar">
+    <div class="nav-left">
+        <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+        <div class="app-logo"></div>
+        <span class="nav-title">Username</span>
+    </div>
+    <div class="nav-center">
+        <div class="search-box" @onclick="ToggleSearch">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search anything..." readonly />
+        </div>
+    </div>
+    <div class="nav-right">
+        <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+        <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+        <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+    </div>
+</header>
+    <main class="maintenance-content">
+        <div class="printer-wrapper">
+            <div class="top-paper-feeder">
+                <div class="paper-in">
+                    <div class="paper-line"></div>
+                    <div class="paper-line"></div>
+                    <div class="paper-line"></div>
+                </div>
+            </div>
+
+            <div class="printer-body">
+                <div class="control-panel">
+                    <button class="btn-contact">Contact Us</button>
+                    <div class="status-dots">
+                        <div class="dot silver"></div>
+                        <div class="dot silver"></div>
+                    </div>
+                    <a href="/home" class="btn-dashboard-link">
+                        <span class="arrow">↩</span> Dashboard
+                    </a>
+                </div>
+
+                <div class="interaction-area">
+                    <div class="led-indicators">
+                        <div class="led red shadow"></div>
+                        <div class="led orange shadow"></div>
+                        <div class="led red shadow"></div>
+                    </div>
+
+                    <div class="display-screen">
+                        <p class="error-text">
+                            The printer is broken again! Looks like it needs some maintenance, please come back later.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="output-tray">
+                    <div class="paper-out">
+                        <div class="paper-line-long"></div>
+                        <div class="paper-line-mid"></div>
+                        <div class="paper-line-mid"></div>
+                    </div>
+                </div>
+                <div class="deco-x">✖</div>
+            </div>
+        </div>
+    </main>
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+    :root {
+        --dark-bg: #1a1a1a;
+        --header-h: 65px;
+        --printer-dark: #1a1a1a;
+        --printer-mid: #2b2b2b;
+        --printer-gray: #4a4a4a;
+        --text-white: #ffffff;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+        background-color: #f5f5f5;
+        overflow: hidden;
+    }
+
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    /* --- TOPBAR STYLE --- */
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* --- MAINTENANCE CONTENT --- */
+    .maintenance-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        position: relative;
+    }
+
+    .printer-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 700px;
+    }
+
+    .top-paper-feeder {
+        width: 350px;
+        height: 80px;
+        background-color: var(--printer-mid);
+        border-radius: 10px 10px 0 0;
+        z-index: 1;
+    }
+
+    .printer-body {
+        width: 100%;
+        height: 400px;
+        background-color: var(--printer-dark);
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        border: 4px solid #000;
+    }
+
+    .control-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40px;
+    }
+
+    .btn-contact, .btn-dashboard-link {
+        background-color: #e0e0e0;
+        border: 2px solid #000;
+        border-radius: 20px;
+        padding: 5px 20px;
+        font-weight: bold;
+        font-size: 14px;
+        text-decoration: none;
+        color: black;
+    }
+
+    .status-dots {
+        display: flex;
+        gap: 15px;
+    }
+
+    .dot.silver {
+        width: 25px;
+        height: 25px;
+        background-color: #c0c0c0;
+        border-radius: 50%;
+        border: 2px solid #000;
+    }
+
+    .interaction-area {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    .led-indicators {
+        background-color: #111;
+        padding: 15px 10px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .led {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+    }
+
+        .led.red {
+            background-color: #ff4d4d;
+            box-shadow: 0 0 10px #ff4d4d;
+        }
+
+        .led.orange {
+            background-color: #ff9800;
+            box-shadow: 0 0 10px #ff9800;
+        }
+
+    .display-screen {
+        flex: 1;
+        background-color: #333;
+        border: 8px solid var(--printer-gray);
+        height: 150px;
+        display: flex;
+        align-items: center;
+        padding: 0 40px;
+    }
+
+    .error-text {
+        color: white;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .output-tray {
+        position: absolute;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        background-color: var(--printer-mid);
+        border: 3px solid #000;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    }
+
+    .paper-out {
+        width: 240px;
+        height: 150px;
+        background: white;
+        border: 4px solid #1a1a1a;
+        margin: -10px auto 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .paper-line, .paper-line-long, .paper-line-mid {
+        height: 4px;
+        background-color: #d0d0d0;
+    }
+
+    .deco-x {
+        position: absolute;
+        bottom: -15px;
+        right: 20px;
+        font-size: 100px;
+        color: #000;
+        opacity: 0.8;
+        font-weight: 900;
+        pointer-events: none;
+    }
+
+    /* --- OVERLAYS & POPUPS --- */
+     .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+</style>

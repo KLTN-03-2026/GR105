@@ -1,0 +1,581 @@
+﻿@page "/home"
+@rendermode InteractiveServer
+
+<div class="dashboard-container">
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="icon-btn hamburger" @onclick="ToggleMenu">☰</button>
+            <div class="logo-placeholder"></div>
+            <span class="brand-name">Dashboard</span>
+        </div>
+
+        <div class="topbar-center">
+            <div class="search-input-wrapper" @onclick="ToggleSearch">
+                <span class="search-icon">⌕</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <button class="join-btn" @onclick="ToggleJoin">＋ Join</button>
+            <button class="icon-btn">🔔</button>
+            <button class="icon-btn profile-trigger" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="left-sidebar">
+            <div class="workspace-card">
+                <div class="card-header">
+                    <span>My workspaces</span>
+                    <button class="add-small-btn">＋ Add</button>
+                </div>
+                <input type="text" class="card-search" placeholder="Find a workspace..." />
+            </div>
+
+            <div class="workspace-list">
+                <div class="workspace-item">
+                    <i class="user-avatar">👤</i>
+                    <span>Username/Workspace</span>
+                </div>
+                <div class="workspace-item">
+                    <i class="user-avatar">👤</i>
+                    <span>Username/Workspace</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content-view">
+            <h1 class="page-title">Home</h1>
+
+            <div class="hanging-board-container">
+                <svg class="hanger-svg" viewBox="0 0 1000 150" preserveAspectRatio="none">
+                    <line x1="500" y1="0" x2="150" y2="150" class="rope-line" />
+                    <line x1="500" y1="0" x2="850" y2="150" class="rope-line" />
+                    <circle cx="500" cy="5" r="6" fill="#444" />
+                </svg>
+
+                <div class="whiteboard">
+                    <div class="whiteboard-header">
+                        <div class="eyelet left"></div>
+                        <div class="eyelet right"></div>
+                    </div>
+                    <div class="whiteboard-content">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+@* --- UI COMPONENTS (POPUPS & OVERLAYS) --- *@
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="nav-item active">⌂ Dashboard</div>
+            <div class="nav-item">✉ Feedback</div>
+            <div class="nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..."/>
+                
+            </div>
+            <div class="nav-item small">👤 Username/Workspace</div>
+            <div class="nav-item small">👤 Username/Workspace</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span>Join new workspace</span>
+            <button @onclick="ToggleJoin">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row">
+                <input type="text" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item">👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+
+@code {
+    bool showMenu = false;
+    bool showSearch = false;
+    bool showJoin = false;
+    bool showProfile = false;
+
+    void ToggleMenu() => showMenu = !showMenu;
+    void ToggleSearch() => showSearch = !showSearch;
+    void ToggleJoin() => showJoin = !showJoin;
+    void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+    :root {
+        --dark-bg: #1a1a1a;
+        --panel-bg: #262626;
+        --border-color: #444;
+        --text-white: #ffffff;
+        --text-gray: #aaa;
+    }
+
+    * {
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+        margin: 0;
+        background-color: #f5f5f5;
+        overflow: hidden;
+    }
+
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    /* TOPBAR STYLE */
+    .topbar {
+        height: 65px;
+        background: var(--dark-bg);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        color: white;
+        z-index: 100;
+    }
+
+    .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo-placeholder {
+        width: 35px;
+        height: 35px;
+        background: #ddd;
+        border-radius: 4px;
+    }
+
+    .brand-name {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .topbar-center {
+        flex: 1;
+        max-width: 600px;
+        padding: 0 40px;
+    }
+
+    .search-input-wrapper {
+        background: #333;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        cursor: pointer;
+    }
+
+        .search-input-wrapper input {
+            background: transparent;
+            border: none;
+            color: white;
+            margin-left: 10px;
+            width: 100%;
+            outline: none;
+        }
+
+    .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .join-btn {
+        background: transparent;
+        border: 1px solid white;
+        color: white;
+        padding: 6px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* MAIN LAYOUT */
+    .main-layout {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .left-sidebar {
+        width: 300px;
+        background: white;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border-right: 1px solid #ddd;
+    }
+
+    .workspace-card {
+        background: var(--dark-bg);
+        border-radius: 12px;
+        padding: 15px;
+        color: white;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .add-small-btn {
+        background: #444;
+        border: none;
+        color: white;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .card-search {
+        width: 100%;
+        background: #333;
+        border: 1px solid #555;
+        color: white;
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    .workspace-list {
+        background: var(--dark-bg);
+        border-radius: 12px;
+        flex: 1;
+        padding: 10px;
+        color: white;
+    }
+
+    .workspace-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border-bottom: 1px solid #333;
+    }
+
+    .content-view {
+        flex: 1;
+        padding: 40px;
+        position: relative;
+        background: #fff;
+        overflow-y: auto;
+    }
+
+    .page-title {
+        font-size: 48px;
+        font-weight: bold;
+        font-style: italic;
+        margin: 0;
+    }
+
+    /* HANGING BOARD */
+    .hanging-board-container {
+        margin-top: 40px;
+        position: relative;
+        width: 100%;
+        max-width: 1600px;
+    }
+
+    .hanger-svg {
+        width: 100%;
+        height: 100px;
+        margin-bottom: -10px;
+    }
+
+    .rope-line {
+        stroke: #555;
+        stroke-width: 3;
+    }
+
+    .whiteboard {
+        border: 2px solid #333;
+        border-radius: 4px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .whiteboard-header {
+        height: 25px;
+        background: #222;
+        position: relative;
+    }
+
+    .eyelet {
+        width: 12px;
+        height: 12px;
+        background: white;
+        border: 2px solid #222;
+        border-radius: 50%;
+        position: absolute;
+        top: 6px;
+    }
+
+        .eyelet.left {
+            left: 275px;
+        }
+
+        .eyelet.right {
+            right: 275px;
+        }
+
+    .whiteboard-content {
+        height: 650px;
+        background: white;
+    }
+
+    /* POPUPS & OVERLAYS */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    /* Sidebar Drawer */
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .nav-item {
+        padding: 12px 0;
+        font-size: 18px;
+        cursor: pointer;
+        color: #ccc;
+    }
+
+        .nav-item.active {
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-search-wrap {
+        position: relative;
+        margin: 10px 0;
+    }
+
+        .nav-search-wrap input {
+            width: 100%;
+            background: #222;
+            border: 1px solid #444;
+            padding: 8px;
+            color: white;
+        }
+
+    /* Search Modal */
+    .search-modal {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 800px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        padding: 15px 25px;
+        border-radius: 12px;
+        border: 1px solid #444;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            outline: none;
+            margin: 0 15px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 70px;
+        right: 120px;
+        width: 450px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 15px;
+        z-index: 200;
+        color: white;
+        padding: 20px;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        width: 250px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 12px;
+        z-index: 200;
+        color: white;
+        padding: 15px;
+    }
+
+    .input-row {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+        .input-row input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+        }
+
+    .tab-row {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row span.active {
+            border-bottom: 2px solid white;
+            padding-bottom: 5px;
+        }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #333;
+        color: #888;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .drop-item {
+        padding: 10px 0;
+        cursor: pointer;
+        color: #ccc;
+    }
+
+        .drop-item:hover {
+            color: white;
+        }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #444;
+        margin: 10px 0;
+    }
+</style>

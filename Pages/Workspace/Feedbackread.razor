@@ -1,0 +1,663 @@
+﻿@page "/feedback-read"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="app-wrapper">
+    @* --- TOPBAR --- *@
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Username</span>
+        </div>
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    @* --- TAB NAVIGATION --- *@
+    <nav class="tab-nav">
+        <div class="tab-item">📄 Document</div>
+        <div class="tab-item active">✉ Feedback</div>
+        <div class="tab-item">🕒 Versioning</div>
+        <div class="tab-item">📋 Logs</div>
+        <div class="tab-item">⚙ Settings</div>
+    </nav>
+
+    <main class="content-area">
+        @* --- HEADER NỘI DUNG --- *@
+        <div class="content-header">
+            <div class="header-left">
+                <div class="feedback-title-container">
+                    <input type="text" class="feedback-title-input" @bind="feedbackSubject" />
+                </div>
+                <div class="title-underline"></div>
+            </div>
+
+            <div class="header-right button-group-right">
+                <button class="btn-action-black" @onclick="CancelSubjectEdit">Cancel</button>
+                <button class="btn-action-black" @onclick="SaveSubjectEdit">Save</button>
+                <button class="btn-action-black">New workspace</button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            @* --- DANH SÁCH FEEDBACK --- *@
+            <section class="feedback-list">
+                @foreach (var item in feedbackItems)
+                {
+                    <div class="thread-row">
+                        <div class="avatar-col">
+                            <div class="avatar-icon">👤</div>
+                            @if (item != feedbackItems.Last())
+                            {
+                                <div class="thread-line"></div>
+                            }
+                        </div>
+                        <div class="card-col">
+                            <div class="feedback-card">
+                                <div class="card-header">
+                                    <span class="user">@item.Username</span>
+                                    <span class="timestamp">opened @item.DaysAgo days ago</span>
+                                </div>
+                                <div class="card-body">
+                                    @if (item.IsEditing)
+                                    {
+                                        <textarea @bind="item.Description" class="edit-textarea"></textarea>
+                                        <div class="card-actions-right">
+                                            <button class="btn-action-black" @onclick="() => CancelEdit(item)">Cancel</button>
+                                            <button class="btn-action-black" @onclick="() => SaveEdit(item)">Save</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p>@item.Description</p>
+                                        <button class="btn-card-action-black" @onclick="() => item.IsEditing = true">Edit</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* --- THÊM BÌNH LUẬN --- *@
+                <div class="thread-row">
+                    <div class="avatar-col"><div class="avatar-icon">👤</div></div>
+                    <div class="card-col">
+                        <label class="comment-label">Add a comment</label>
+                        <div class="feedback-card no-header">
+                            <div class="card-body">
+                                <textarea placeholder="Description" @bind="newComment" class="comment-textarea"></textarea>
+                                <button class="btn-card-action-black">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            @* --- SIDEBAR --- *@
+            <aside class="info-sidebar">
+                <div class="sidebar-black-container">
+                    <div class="info-section">
+                        <label>Author</label>
+                        <div class="val-text">Username</div>
+                    </div>
+                    <hr class="sidebar-divider" />
+                    <div class="info-section">
+                        <label>Notification</label>
+                        <div class="custom-toggle" @onclick="() => notiOn = !notiOn">
+                            <div class="toggle-track">
+                                <div class="toggle-thumb @(notiOn ? "on" : "")">@(notiOn ? "On" : "")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="sidebar-divider" />
+                    <div class="info-section">
+                        <label>Feedback Status</label>
+                        <div class="custom-toggle" @onclick="() => statusOn = !statusOn">
+                            <div class="toggle-track">
+                                <div class="toggle-thumb @(statusOn ? "on" : "")">@(statusOn ? "On" : "")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="sidebar-divider" />
+                    <button class="btn-sidebar-delete">Delete</button>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+
+@* --- OVERLAYS --- *@
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+
+<style>
+    :root {
+        --dark-main: #1a1a1a;
+        --border-color: #000;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #fff;
+    }
+
+    /* Layout Navbar */
+    .top-navbar {
+        height: 60px;
+        background: var(--dark-main);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .app-logo {
+        width: 30px;
+        height: 30px;
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 6px;
+        padding: 6px 12px;
+        display: flex;
+        width: 350px;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            margin-left: 8px;
+            width: 100%;
+            outline: none;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+        background: #2a2a2a;
+        display: flex;
+        padding-left: 40px;
+    }
+
+    .tab-item {
+        padding: 12px 20px;
+        color: #999;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .tab-item.active {
+            background: white;
+            color: black;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+
+    /* Content Area */
+    .content-area {
+        padding: 30px 60px;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .header-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .feedback-title-container {
+        border: 2px solid #000;
+        border-radius: 12px;
+        padding: 5px 15px;
+        width: 100%;
+        min-width: 400px;
+        max-width: 800px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+    }
+
+    .feedback-title-input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 2.2rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-family: inherit;
+        background: transparent;
+    }
+
+    .title-underline {
+        height: 2px;
+        background: black;
+        width: 100%;
+        max-width: 700px;
+        margin-top: 5px;
+    }
+
+    /* Buttons Style */
+    .button-group-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-action-black {
+        background: #222;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: opacity 0.2s;
+    }
+
+        .btn-action-black:hover {
+            opacity: 0.8;
+        }
+
+    /* Grid Layout */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 40px;
+        margin-top: 30px;
+    }
+
+    /* Feedback Cards */
+    .thread-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .avatar-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 40px;
+    }
+
+    .avatar-icon {
+        font-size: 24px;
+    }
+
+    .thread-line {
+        width: 2px;
+        background: black;
+        flex-grow: 1;
+        margin-top: 10px;
+    }
+
+    .card-col {
+        flex: 1;
+    }
+
+    .feedback-card {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 4px rgba(0,0,0,0.05);
+    }
+
+    .card-header {
+        background: var(--dark-main);
+        color: white;
+        padding: 8px 15px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+    }
+
+    .card-body {
+        padding: 15px;
+        min-height: 120px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Textarea styling */
+    textarea {
+        width: 100%;
+        min-height: 80px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        resize: none;
+        outline: none;
+        border-radius: 8px;
+        font-family: inherit;
+        margin-bottom: 10px;
+    }
+
+    /* MỚI: Group nút căn phải trong card */
+    .card-actions-right {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        width: 100%;
+    }
+
+    /* MỚI: Nút Edit/Submit màu đen góc dưới phải */
+    .btn-card-action-black {
+        align-self: flex-end;
+        background: #222;
+        color: white;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: auto;
+    }
+
+    /* Sidebar */
+    .sidebar-black-container {
+        background: var(--dark-main);
+        color: white;
+        border-radius: 20px;
+        padding: 25px;
+    }
+
+    .info-section label {
+        color: #fff;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .val-text {
+        font-size: 15px;
+        color: #ccc;
+    }
+
+    .sidebar-divider {
+        border: 0;
+        border-top: 1px solid #444;
+        margin: 15px 0;
+    }
+
+    /* Toggle Custom */
+    .toggle-track {
+        width: 80px;
+        height: 32px;
+        background: #333;
+        border-radius: 20px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .toggle-thumb {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        width: 45px;
+        height: 24px;
+        background: #fff;
+        color: #000;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+        .toggle-thumb.on {
+            transform: translateX(27px);
+        }
+
+    .btn-sidebar-delete {
+        width: 100%;
+        background: transparent;
+        border: 1px solid #666;
+        color: white;
+        padding: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    /* Overlay & Modals */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .comment-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+</style>
+
+@code {
+    private string feedbackSubject = "FEEDBACK SUBJECT";
+    private string backupSubject = "FEEDBACK SUBJECT";
+    private string newComment = "";
+    private bool notiOn = true;
+    private bool statusOn = true;
+
+    private bool showMenu, showSearch, showJoin, showProfile;
+
+    private void SaveSubjectEdit()
+    {
+        backupSubject = feedbackSubject;
+        Console.WriteLine("Saved Subject: " + feedbackSubject);
+    }
+
+    private void CancelSubjectEdit()
+    {
+        feedbackSubject = backupSubject;
+    }
+
+    public class FeedbackItem
+    {
+        public string Username { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int DaysAgo { get; set; }
+        public bool IsEditing { get; set; }
+    }
+
+    private List<FeedbackItem> feedbackItems = new() {
+        new FeedbackItem { Username = "Username", Description = "Description content 1", DaysAgo = 5 },
+        new FeedbackItem { Username = "Username", Description = "Description content 2", DaysAgo = 2 }
+    };
+
+    private void SaveEdit(FeedbackItem item) => item.IsEditing = false;
+    private void CancelEdit(FeedbackItem item) => item.IsEditing = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}

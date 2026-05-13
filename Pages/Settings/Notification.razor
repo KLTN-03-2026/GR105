@@ -1,0 +1,655 @@
+﻿@page "/notifications"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="app-wrapper">
+
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Username</span>
+        </div>
+
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+   
+        <aside class="sidebar">
+            <div class="profile-header">
+                <span class="avatar-icon">👤</span>
+                <span class="profile-name">Username</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/profile" class="nav-link">
+                    <span class="icon">👤</span> Profile
+                </a>
+                <a href="/account" class="nav-link">
+                    <span class="icon">⚙️</span> Account
+                </a>
+                <a href="/appearance" class="nav-link">
+                    <span class="icon">🎨</span> Appearance
+                </a>
+                <a href="/notifications" class="nav-link active">
+                    <span class="icon">🔔</span> Notification
+                </a>
+                <a href="/workspace" class="nav-link">
+                    <span class="icon">📁</span> Workspace
+                </a>
+                <a href="/email" class="nav-link">
+                    <span class="icon">✉️</span> Email
+                </a>
+            </nav>
+        </aside>
+
+        @* CONTENT CHÍNH *@
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title big-bold">Notification</h1>
+                <button class="btn-personal-profile">Personal profile</button>
+            </div>
+
+            <div class="settings-body">
+                <section class="settings-section">
+                    <label class="section-label">Default notification email</label>
+                    <select class="email-select">
+                        <option>user@mail.com</option>
+                    </select>
+                </section>
+
+                <section class="settings-section">
+                    <label class="section-label">Notify me</label>
+
+                    <div class="table-container">
+                        <table class="notify-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-situation">Situation</th>
+                                    <th class="col-product border-left">&lt;Product Name&gt;</th>
+                                    <th class="col-email border-left">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Notification for all workspaces, teams that you're currently participating</td>
+                                    <td class="text-center border-left"><input type="checkbox" checked /></td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Notification for events or @@mention</td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Notification for workspace, feedback changes</td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Alert when something happens to workspaces</td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                    <td class="text-center border-left"><input type="checkbox" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+@* MODALS / OVERLAYS ĐỒNG BỘ VỚI profile.razor *@
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+    :root {
+        --dark-bg: #1a1a1a;
+        --header-h: 65px;
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .app-wrapper {
+        background: #f0f0f0;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .top-navbar {
+        height: var(--header-h);
+        background: var(--dark-bg);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .nav-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .main-container {
+        display: flex;
+        flex: 1;
+    }
+
+    .sidebar {
+        width: 280px;
+        background: #000;
+        color: #888;
+        padding-top: 20px;
+        flex-shrink: 0;
+    }
+
+    .profile-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #222;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 14px 25px;
+        color: inherit;
+        text-decoration: none;
+    }
+
+        .nav-link.active {
+            background: white;
+            color: black;
+            border-radius: 12px 0 0 12px;
+            margin-left: 15px;
+            font-weight: bold;
+        }
+
+    .main-content {
+        flex: 1;
+        background: white;
+        padding-top: 40px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1.5px solid black;
+        padding: 0 60px 15px;
+        margin-bottom: 30px;
+    }
+
+    .page-title.big-bold {
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: #000;
+        letter-spacing: -1px;
+    }
+
+    .btn-personal-profile {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .settings-body {
+        padding: 0 60px;
+    }
+
+    .section-label {
+        display: block;
+        font-weight: 800;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+        color: #000;
+    }
+
+    .email-select {
+        width: 320px;
+        padding: 12px;
+        border: 1.5px solid #000;
+        border-radius: 8px;
+        margin-bottom: 40px;
+        font-weight: 500;
+    }
+
+    .table-container {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .notify-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .notify-table th {
+            background: #fdfdfd;
+            padding: 15px;
+            font-weight: 800;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .notify-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            line-height: 1.4;
+        }
+
+    .border-left {
+        border-left: 1px solid #ccc !important;
+    }
+
+    .text-center {
+        text-align: center;
+        width: 150px;
+    }
+
+    .notify-table input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #000;
+    }
+
+    .notify-table tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+</style>

@@ -1,0 +1,593 @@
+﻿@page "/workspace-feedback"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+    @* --- TOPBAR --- *@
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+            <div class="app-logo"></div>
+            <span class="nav-title">Username</span>
+        </div>
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search anything..." readonly />
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+            <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+            <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+        </div>
+    </header>
+
+    @* --- SUB-NAVBAR --- *@
+    <nav class="sub-navbar">
+        <div class="nav-item">📄 Document</div>
+        <div class="nav-item active">✉ Feedback</div>
+        <div class="nav-item">📑 Versioning</div>
+        <div class="nav-item">📜 Logs</div>
+        <div class="nav-item">⚙ Settings</div>
+    </nav>
+
+    @* --- MAIN CONTENT AREA --- *@
+    <main class="content-container">
+        <div class="action-bar">
+            <div class="search-feedback-wrapper">
+                <input type="text" placeholder="Search feedbacks..." class="input-search-fb" />
+                <button class="btn-search-icon">🔍</button>
+            </div>
+            <button class="btn-new-workspace">New workspace</button>
+        </div>
+
+        <div class="feedback-table">
+            <div class="table-header">
+                <div class="col-select">
+                    <input type="checkbox" id="selectAll" />
+                    <label for="selectAll">Select All</label>
+                </div>
+                <div class="col-author">Author</div>
+                <div class="col-directed">Directed To</div>
+                <div class="col-updated">Last Updated</div>
+                <div class="col-sort">
+                    <span>Newest</span>
+                    <i class="arrow-down">▼</i>
+                </div>
+            </div>
+
+            <div class="table-body">
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div class="table-row">
+                        <div class="col-select-row">
+                            <input type="checkbox" />
+                            <div class="title-group">
+                                <span class="row-title">Feedback Title @i</span>
+                                <span class="row-desc">Quick description of the issue...</span>
+                            </div>
+                        </div>
+                        <div class="col-author">Author X</div>
+                        <div class="col-directed">Username</div>
+                        <div class="col-updated">@(i + 1) days ago</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </main>
+
+@* --- OVERLAYS & MODALS LOGIC --- *@
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+    :root {
+        --dark-bg: #1a1a1a;
+        --header-h: 65px;
+        --border-color: #333;
+    }
+
+    /* --- RESET & WRAPPER --- */
+    .app-wrapper {
+        background: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+    }
+
+    /* --- TOPBAR STYLES --- */
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+
+    /* --- SUB-NAVBAR --- */
+    .sub-navbar {
+        background: var(--dark-bg);
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-item {
+        color: #888;
+        cursor: pointer;
+        padding: 8px 15px;
+        font-size: 0.95rem;
+        transition: 0.2s;
+    }
+
+        .nav-item.active {
+            background: white;
+            color: black;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+    /* --- FEEDBACK CONTENT --- */
+    .content-container {
+        padding: 40px 60px;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        gap: 20px;
+    }
+
+    .search-feedback-wrapper {
+        display: flex;
+        flex: 1;
+        border: 2px solid black;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .input-search-fb {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        outline: none;
+    }
+
+    .btn-search-icon {
+        width: 60px;
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-new-workspace {
+        background: #222;
+        color: white;
+        padding: 0 25px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    /* --- TABLE STYLES --- */
+    .feedback-table {
+        border: 2px solid black;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: #1a1a1a;
+        color: white;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+        padding: 15px 25px;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr;
+        padding: 15px 25px;
+        border-bottom: 1px solid #eee;
+        align-items: center;
+    }
+
+    .col-select-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .title-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row-title {
+        font-weight: bold;
+    }
+
+    .row-desc {
+        font-size: 0.8rem;
+        color: #777;
+    }
+
+    /* --- MODALS & OVERLAYS --- */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+</style>

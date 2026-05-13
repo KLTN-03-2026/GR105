@@ -1,0 +1,284 @@
+﻿@page "/admin-only"
+
+<div class="admin-card-container">
+    <div class="card-outer">
+        <div class="card-inner">
+            <div class="card-white">
+
+                <div class="top-left-corner">
+                    <div class="punch-hole"></div>
+                </div>
+
+                <div class="card-layout">
+                    <div class="barcode-sidebar">
+                        <div class="barcode">
+                            @* Tạo vạch mã vạch ngẫu nhiên *@
+                            @for (int i = 0; i < 40; i++)
+                            {
+                                <div class="bar" style="height: @(Random.Shared.Next(1, 5))px;"></div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="main-content">
+
+                        <div class="admin-header">
+                            <div class="header-content">
+                                <div class="header-title">
+                                    <span class="welcome">Welcome Back</span>
+                                    <svg class="big-triangle" viewBox="0 0 100 80">
+                                        <polygon points="0,0 100,0 50,80" fill="#1a1a1a" />
+                                    </svg>
+                                    <span class="admin-role">Administrator</span>
+                                </div>
+                                <div class="header-divider"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-inputs">
+                            <div class="input-row">
+                                <label>Username</label>
+                                <input type="text" spellcheck="false" />
+                            </div>
+                            <div class="input-row">
+                                <label>Password</label>
+                                <input type="password" />
+                            </div>
+                        </div>
+
+                        <div class="bottom-action">
+
+                            <svg class="mech-line" viewBox="0 0 700 100" preserveAspectRatio="none">
+                                <path d="M 0 85 L 160 85 L 210 50 L 700 50" fill="none" stroke="#2b2b2b" stroke-width="6" stroke-linejoin="round" />
+                            </svg>
+
+                            <button class="auth-btn">
+                                Author<span class="i-letter">
+                                i
+                                <svg class="small-up-triangle" viewBox="0 0 20 20">
+                                    <polygon points="10,2 20,18 0,18" />
+                                </svg>
+                            </span>zation
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+    /* CĂN GIỮ TOÀN BỘ TRANG */
+    .admin-card-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f2f5;
+        font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    /* 1. THIẾT KẾ KHUNG THẺ */
+    .card-outer {
+        background-color: #262626;
+        padding: 15px;
+        border-radius: 25px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+        width: 850px;
+        height: 480px;
+        box-sizing: border-box;
+    }
+
+    .card-inner {
+        background-color: #4d4d4d;
+        padding: 10px;
+        border-radius: 22px;
+        height: 100%;
+    }
+
+    .card-white {
+        background-color: #ffffff;
+        border-radius: 14px;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .top-left-corner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 150px;
+        height: 95px;
+        background-color: #4d4d4d;
+        clip-path: polygon(0 0, 100% 0, 75% 100%, 0 100%);
+        display: flex;
+        padding: 20px 0 0 25px;
+        z-index: 10;
+    }
+
+    .punch-hole {
+        width: 38px;
+        height: 38px;
+        background-color: #ffffff;
+        border-radius: 50%;
+    }
+
+    /* 3. BỐ CỤC CHÍNH */
+    .card-layout {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        padding-top: 80px;
+    }
+
+    .barcode-sidebar {
+        width: 170px;
+        display: flex;
+        justify-content: center;
+        padding-top: 40px;
+    }
+
+    .barcode {
+        width: 55px;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .bar {
+        width: 100%;
+        background-color: #1a1a1a;
+    }
+
+    /* 4. NỘI DUNG FORM */
+    .main-content {
+        flex: 1;
+        padding-right: 50px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 35px;
+        margin-top: -30px;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .welcome, .admin-role {
+        font-size: 32px;
+        font-weight: 800;
+        color: #000;
+    }
+
+    .big-triangle {
+        width: 45px;
+        height: 38px;
+    }
+
+    .header-divider {
+        width: 100%;
+        height: 4px;
+        background-color: #1a1a1a;
+        margin-top: 10px;
+    }
+
+    .form-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+        .input-row label {
+            width: 130px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .input-row input {
+            flex: 1;
+            height: 45px;
+            border: 2px solid #888;
+            border-radius: 12px;
+            padding: 0 15px;
+            font-size: 20px;
+            outline: none;
+        }
+    .bottom-action {
+        position: relative;
+        flex: 1;
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+        width: 100%;
+    }
+
+    .mech-line {
+        position: absolute;
+        top: 50%;
+        left: -170px;
+        transform: translateY(-50%);
+        width: calc(100% + 220px);
+        height: 100px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .auth-btn {
+        position: relative;
+        z-index: 2; 
+        background-color: #ffffff;
+        color: #1a1a1a;
+        border: 4px solid #1a1a1a;
+        border-radius: 16px;
+        padding: 12px 50px;
+        font-size: 28px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s ease; 
+        display: flex;
+        align-items: center;
+    }
+        .auth-btn:hover {
+            background-color: #1a1a1a; 
+            color: #ffffff; 
+        }
+    .i-letter {
+        position: relative;
+        display: inline-block;
+    }
+
+    .small-up-triangle {
+        position: absolute;
+        top: -5px; 
+        left: 50%;
+        transform: translateX(-50%);
+        width: 18px;
+        height: 18px;
+        fill: #fff;
+        stroke: #1a1a1a;
+        stroke-width: 2.5px;
+        transition: all 0.3s ease;
+    }
+
+    .auth-btn:hover .small-up-triangle {
+        fill: #1a1a1a;
+        stroke: #ffffff;
+    }
+</style>

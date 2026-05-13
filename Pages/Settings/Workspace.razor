@@ -1,0 +1,903 @@
+﻿@page "/set-workspace"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="app-wrapper">
+
+    <!-- TOPBAR -->
+    <header class="top-navbar">
+        <div class="nav-left">
+            <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+
+            <div class="app-logo"></div>
+
+            <span class="nav-title">Dashboard</span>
+        </div>
+
+        <div class="nav-center">
+            <div class="search-box" @onclick="ToggleSearch">
+                <span class="search-icon">🔍</span>
+
+                <input type="text"
+                       placeholder="Search anything..."
+                       readonly />
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <button class="btn-join"
+                    @onclick="ToggleJoin">
+                + Join
+            </button>
+
+            <button class="icon-btn"
+                    @onclick='() => Navigation.NavigateTo("/noti")'>
+                🔔
+            </button>
+
+            <button class="icon-btn"
+                    @onclick="ToggleProfile">
+                👤
+            </button>
+        </div>
+    </header>
+
+    <!-- BODY -->
+    <div class="settings-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="settings-sidebar">
+
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">
+                    👤
+                </div>
+
+                <div class="sidebar-info">
+                    <h3>Username</h3>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <a href="/profile" class="side-link">
+                    👤 Profile
+                </a>
+
+                <a href="/account" class="side-link">
+                    ⚙ Account
+                </a>
+
+                <a href="/appearance" class="side-link">
+                    🎨 Appearance
+                </a>
+
+                <a href="/notifications" class="side-link">
+                    🔔 Notification
+                </a>
+
+                <a href="/workspace" class="side-link active">
+                    📁 Workspace
+                </a>
+
+                <a href="/email" class="side-link">
+                    ✉ Email
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="settings-main">
+
+            <div class="main-header">
+                <div>
+                    <h1 class="page-title">Workspace</h1>
+                </div>
+
+                <button class="back-btn"
+                        @onclick='() => Navigation.NavigateTo("/profile-detail")'>
+                    Personal Profile
+                </button>
+            </div>
+
+            <div class="settings-body">
+
+                <!-- TAB SELECTOR -->
+                <div class="workspace-tabs">
+                    <button class="tab-item @(activeTab == "active" ? "active" : "")"
+                            @onclick='() => activeTab = "active"'>
+                        <span class="icon">📁</span> Active Workspace
+                    </button>
+                    <button class="tab-item @(activeTab == "deleted" ? "active" : "disabled")"
+                            @onclick='() => activeTab = "deleted"'>
+                        <span class="icon">🗑️</span> Deleted Workspace
+                    </button>
+                </div>
+
+                <!-- WORKSPACE LIST -->
+                <div class="workspace-list-container">
+
+                    <!-- Group 1: My Workspace -->
+                    <div class="workspace-group">
+                        <h3 class="group-label">My workspace</h3>
+                        <div class="workspace-card">
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                                <span class="ws-info">&lt;size&gt;</span>
+                                <span class="ws-info">&lt;files numbers&gt;</span>
+                                <span class="ws-collab">👤 &lt;x&gt; Co-Writer</span>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group 2: Shared Workspace -->
+                    <div class="workspace-group">
+                        <h3 class="group-label">Username</h3>
+                        <div class="workspace-card">
+                            <div class="workspace-item has-action">
+                                <div class="ws-main-info">
+                                    <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                                    <span class="ws-info">&lt;size&gt;</span>
+                                    <span class="ws-info">&lt;files numbers&gt;</span>
+                                </div>
+                                <button class="btn-leave">Leave workspace</button>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group 3 -->
+                    <div class="workspace-group">
+                        <h3 class="group-label">Username</h3>
+                        <div class="workspace-card">
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                            </div>
+                            <div class="workspace-item">
+                                <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- DRAWER MENU -->
+@if (showMenu)
+{
+    <div class="drawer-menu">
+
+        <div class="drawer-header">
+            <span class="drawer-user-icon">👤</span>
+
+            <button class="close-btn"
+                    @onclick="ToggleMenu">
+                ✕
+            </button>
+        </div>
+
+        <nav class="drawer-nav">
+
+            <div class="drawer-item"
+                 @onclick='() => Navigation.NavigateTo("/")'>
+                ⌂ Dashboard
+            </div>
+
+            <div class="drawer-item">
+                ✉ Feedback
+            </div>
+
+            <div class="drawer-item">
+                📞 Contact Us
+            </div>
+
+            <div class="drawer-divider"></div>
+
+            <div class="drawer-label">
+                Top workspaces
+            </div>
+
+            <div class="drawer-search">
+                <input type="text"
+                       placeholder="Search workspace..." />
+            </div>
+
+            <div class="drawer-item small">
+                👤 Project Alpha
+            </div>
+
+            <div class="drawer-item small">
+                👤 Team Beta
+            </div>
+
+        </nav>
+    </div>
+
+    <div class="overlay"
+         @onclick="ToggleMenu"></div>
+}
+
+<!-- SEARCH MODAL -->
+@if (showSearch)
+{
+    <div class="search-modal">
+
+        <div class="search-modal-box">
+
+            <span>⌕</span>
+
+            <input type="text"
+                   placeholder="Search anything..."
+                   autofocus />
+
+            <button @onclick="ToggleSearch">
+                ✕
+            </button>
+
+        </div>
+    </div>
+
+    <div class="overlay"
+         @onclick="ToggleSearch"></div>
+}
+
+<!-- JOIN -->
+@if (showJoin)
+{
+    <div class="join-dropdown">
+
+        <div class="join-header">
+
+            <span>Join new workspace</span>
+
+            <button @onclick="ToggleJoin">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="join-body">
+
+            <div class="join-input">
+                <i>👤</i>
+
+                <input type="text"
+                       placeholder="Username" />
+
+                <button>⧉</button>
+            </div>
+
+            <div class="join-tabs">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+
+            <div class="join-input">
+                <input type="text"
+                       placeholder="Workspace Link/ID" />
+
+                <button>⧉</button>
+            </div>
+
+            <button class="join-submit">
+                Send request to join workspace
+            </button>
+
+        </div>
+    </div>
+
+    <div class="overlay transparent"
+         @onclick="ToggleJoin"></div>
+}
+
+<!-- PROFILE DROPDOWN -->
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+
+        <div class="profile-user">
+            <span>👤</span>
+            <span>Username</span>
+        </div>
+
+        <div class="profile-divider"></div>
+
+        <div class="profile-item"
+             @onclick='() => Navigation.NavigateTo("/profile-detail")'>
+            👤 Profile
+        </div>
+
+        <div class="profile-item">
+            📁 Workspaces
+        </div>
+
+        <div class="profile-item">
+            ✉ Feedback
+        </div>
+
+        <div class="profile-item">
+            ⚙ Settings
+        </div>
+
+        <div class="profile-item logout">
+            ↪ Sign out
+        </div>
+
+    </div>
+
+    <div class="overlay transparent"
+         @onclick="ToggleProfile"></div>
+}
+
+@code {
+
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+    private string activeTab = "active";
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
+
+<style>
+
+    :root {
+        --dark: #111;
+        --light: #f5f5f5;
+        --gray: #888;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .app-wrapper {
+        min-height: 100vh;
+        background: var(--light);
+    }
+
+    /* ─── TOPBAR ─────────────────────────────────────── */
+
+    .top-navbar {
+        height: 65px;
+        background: #111;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+    }
+
+    .nav-left,
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle,
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .nav-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .search-box {
+        width: 420px;
+        background: #222;
+        border-radius: 10px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            width: 100%;
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            cursor: pointer;
+        }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #444;
+        color: white;
+        padding: 7px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    /* ─── LAYOUT ─────────────────────────────────────── */
+
+    .settings-layout {
+        display: flex;
+        min-height: calc(100vh - 65px);
+    }
+
+    /* ─── SIDEBAR ────────────────────────────────────── */
+
+    .settings-sidebar {
+        width: 280px;
+        background: #111;
+        color: white;
+        padding: 30px 20px;
+        flex-shrink: 0;
+    }
+
+    .sidebar-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .sidebar-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+    }
+
+    .sidebar-info h3 {
+        font-size: 18px;
+    }
+
+    .side-link {
+        display: block;
+        text-decoration: none;
+        color: #999;
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        transition: 0.2s;
+    }
+
+        .side-link:hover {
+            background: #222;
+            color: white;
+        }
+
+        .side-link.active {
+            background: white;
+            color: black;
+            font-weight: 700;
+        }
+
+    /* ─── MAIN ───────────────────────────────────────── */
+
+    .settings-main {
+        flex: 1;
+        padding: 40px;
+        background: white;
+    }
+
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1.5px solid #000;
+    }
+
+    .page-title {
+        font-size: 42px;
+        font-weight: 900;
+    }
+
+    .back-btn {
+        background: black;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    /* ─── WORKSPACE CONTENT ──────────────────────────── */
+
+    .settings-body {
+        /* inherits padding from settings-main */
+    }
+
+    .workspace-tabs {
+        background-color: #1a1a1a;
+        border-radius: 12px;
+        padding: 10px 20px;
+        display: flex;
+        gap: 30px;
+        margin-bottom: 25px;
+    }
+
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #888;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 4px 0;
+    }
+
+        .tab-item.active {
+            color: white;
+        }
+
+        .tab-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .workspace-group {
+        margin-bottom: 30px;
+    }
+
+    .group-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .workspace-card {
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .workspace-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        transition: background 0.2s;
+    }
+
+        .workspace-item:last-child {
+            border-bottom: none;
+        }
+
+        .workspace-item:hover {
+            background-color: #fafafa;
+        }
+
+    .ws-path {
+        font-weight: 500;
+        color: #000;
+        min-width: 250px;
+    }
+
+    .ws-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .ws-collab {
+        color: #444;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .has-action {
+        justify-content: space-between;
+    }
+
+    .ws-main-info {
+        display: flex;
+        gap: 40px;
+        align-items: center;
+    }
+
+    .btn-leave {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* ─── OVERLAY ────────────────────────────────────── */
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    /* ─── DRAWER ─────────────────────────────────────── */
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background: black;
+        color: white;
+        padding: 20px;
+        z-index: 200;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .drawer-user-icon {
+        font-size: 40px;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-item {
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #ccc;
+    }
+
+        .drawer-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .drawer-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .drawer-label {
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .drawer-search input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    /* ─── SEARCH MODAL ───────────────────────────────── */
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 200;
+        width: 90%;
+        max-width: 600px;
+    }
+
+    .search-modal-box {
+        background: #111;
+        color: white;
+        border-radius: 14px;
+        border: 1px solid #333;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+        .search-modal-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            margin: 0 15px;
+        }
+
+        .search-modal-box button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+    /* ─── JOIN DROPDOWN ──────────────────────────────── */
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        width: 400px;
+        background: #222;
+        color: white;
+        border-radius: 16px;
+        border: 1px solid #444;
+        padding: 20px;
+        z-index: 200;
+    }
+
+    .join-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .join-header button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+    .join-input {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: black;
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+        .join-input input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+        .join-input button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+    .join-tabs {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #444;
+    }
+
+        .join-tabs span {
+            padding-bottom: 8px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .join-tabs .active {
+            color: white;
+            border-bottom: 2px solid white;
+        }
+
+    .join-submit {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        cursor: pointer;
+    }
+
+    /* ─── PROFILE DROPDOWN ───────────────────────────── */
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        width: 220px;
+        background: #111;
+        color: white;
+        border: 1px solid #333;
+        border-radius: 14px;
+        padding: 10px;
+        z-index: 200;
+    }
+
+    .profile-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: 700;
+    }
+
+    .profile-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .profile-item {
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #ccc;
+    }
+
+        .profile-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .profile-item.logout {
+            color: #ff4d4d;
+        }
+</style>
