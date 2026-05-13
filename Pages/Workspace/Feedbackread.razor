@@ -236,13 +236,15 @@
 
     /* Layout Navbar */
     .top-navbar {
-        height: 60px;
-        background: var(--dark-main);
+        height: 65px;
+        background: #1a1a1a;
         color: white;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 20px;
+        z-index: 100;
+        position: relative;
     }
 
     .nav-left {
@@ -251,36 +253,38 @@
         gap: 15px;
     }
 
-    .app-logo {
-        width: 30px;
-        height: 30px;
-        background: #ccc;
-        border-radius: 4px;
-    }
-
     .menu-toggle {
         background: none;
         border: none;
         color: white;
-        font-size: 20px;
+        font-size: 22px;
         cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
     }
 
     .search-box {
         background: #333;
-        border-radius: 6px;
-        padding: 6px 12px;
+        border-radius: 8px;
+        padding: 8px 15px;
         display: flex;
-        width: 350px;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
     }
 
         .search-box input {
             background: transparent;
             border: none;
-            color: #fff;
-            margin-left: 8px;
+            color: white;
             width: 100%;
             outline: none;
+            margin-left: 10px;
         }
 
     .nav-right {
@@ -475,7 +479,6 @@
         margin-bottom: 10px;
     }
 
-    /* MỚI: Group nút căn phải trong card */
     .card-actions-right {
         display: flex;
         justify-content: flex-end;
@@ -483,7 +486,7 @@
         width: 100%;
     }
 
-    /* MỚI: Nút Edit/Submit màu đen góc dưới phải */
+    
     .btn-card-action-black {
         align-self: flex-end;
         background: #222;
@@ -588,6 +591,151 @@
         padding: 20px;
     }
 
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
     .profile-dropdown {
         position: fixed;
         top: 75px;
@@ -599,6 +747,20 @@
         width: 220px;
         padding: 10px;
         color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
     }
 
     .drop-item {
@@ -613,11 +775,9 @@
             color: white;
         }
 
-    .comment-label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-    }
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
 </style>
 
 @code {

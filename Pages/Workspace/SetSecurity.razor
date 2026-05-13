@@ -1,23 +1,21 @@
-﻿@page "/workspace"
+﻿@page "/settings/security"
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-<div class="app-wrapper">
-    @* --- TOPBAR  --- *@
+<div class="ws-container">
+    <!-- TOPBAR -->
     <header class="top-navbar">
         <div class="nav-left">
             <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
             <div class="app-logo"></div>
-            <span class="nav-title">Username/Workspace</span>
+            <span class="nav-title">Username</span>
         </div>
-
         <div class="nav-center">
             <div class="search-box" @onclick="ToggleSearch">
                 <span class="search-icon">🔍</span>
                 <input type="text" placeholder="Search anything..." readonly />
             </div>
         </div>
-
         <div class="nav-right">
             <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
             <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
@@ -25,68 +23,91 @@
         </div>
     </header>
 
-    <div class="main-container">
-        @* SIDEBAR *@
-        <aside class="sidebar">
-            <nav class="nav-menu">
-                <a href="/contributions" class="nav-link">👥 Contributions</a>
-                <a href="/workspace" class="nav-link active">📁 My workspaces</a>
-                <a href="/admin-access" class="nav-link">⚙️ Admin Access</a>
-            </nav>
+    <!-- TAB NAVIGATION -->
+    <nav class="ws-tabs-bar">
+        <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docread")'>📄 Document</button>
+        <button class="tab-item">✉ Feedback</button>
+        <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docver")'>🕒 Versioning</button>
+        <button class="tab-item">📋 Logs</button>
+        <button class="tab-item active">⚙ Settings</button>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="settings-layout">
+        <!-- SIDEBAR -->
+        <aside class="settings-sidebar">
+            <button class="side-item" @onclick='() => Navigation.NavigateTo("/settings/general")'>
+                <span class="icon">⚙</span> General
+            </button>
+            <button class="side-item" @onclick='() => Navigation.NavigateTo("/settings/co-writers")'>
+                <span class="icon">👥</span> Co-Writers
+            </button>
+            <button class="side-item active" @onclick='() => Navigation.NavigateTo("/settings/security")'>
+                <span class="icon">🛡</span> Security
+            </button>
         </aside>
 
-        @* CONTENT *@
-        <main class="main-content">
-            <div class="content-header-row">
-                <h2 class="section-title">My contributions</h2>
-                <button class="btn-new-workspace">📁 New workspace</button>
+        <!-- CONTENT AREA -->
+        <main class="settings-content">
+            <h2 class="content-title-line">Security</h2>
+
+            <!-- SECTION 1: VISIBILITY -->
+            <div class="visibility-row">
+                <div class="security-icon-box">
+                    <span class="folder-icon">📂</span>
+                </div>
+                <div class="visibility-text">
+                    <div class="feature-name">Private workspace</div>
+                    <div class="feature-desc">Workspace này đang ở chế độ công khai</div>
+                </div>
+                <button class="btn-change-visibility">Change visibility</button>
             </div>
 
-            <div class="workspace-search-container">
-                <div class="inner-search">
-                    <input type="text" placeholder="Search workspace..." />
-                    <span class="clear-icon">✖</span>
-                    <button class="btn-search-inner">🔍</button>
+            <!-- SECTION 2: ALERTS BOX -->
+            <div class="settings-group-box">
+                <div class="feature-item">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" checked />
+                        <span class="checkmark"></span>
+                    </label>
+                    <div class="feature-text">
+                        <div class="feature-name">Version alert</div>
+                        <div class="feature-desc">Cảnh báo phiên bản được chỉnh sửa bởi thành viên khác</div>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                    <div class="feature-text">
+                        <div class="feature-name">Co-writer alert</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="workspace-ribbon-list">
-                <div class="ribbon-item">
-                    <div class="pillar left-pillar"></div>
-                    <div class="ribbon-body">
-                        <div class="ribbon-header">
-                            <span class="ws-name">My Username/Workspace Name</span>
-                            <span class="ws-icon-settings">⚙️</span>
-                        </div>
-                        <p class="ws-desc">Description</p>
-                        <span class="ws-update">Updated X days ago</span>
+            <!-- SECTION 3: DANGER ZONE BOX -->
+            <div class="settings-group-box">
+                <div class="danger-item">
+                    <div class="danger-text">
+                        <div class="feature-name">Archive this workspace</div>
+                        <div class="feature-desc">Đóng workspace và chuyển sang chế độ read-only</div>
                     </div>
-                    <div class="pillar right-pillar"></div>
+                    <button class="btn-danger">Archive this workspace</button>
                 </div>
 
-                <div class="ribbon-item">
-                    <div class="pillar left-pillar"></div>
-                    <div class="ribbon-body">
-                        <div class="ribbon-header">
-                            <span class="ws-name">Other Username/Workspace Name</span>
-                        </div>
-                        <p class="ws-desc">Description</p>
-                        <span class="ws-update">Updated X days ago</span>
+                <div class="danger-item">
+                    <div class="danger-text">
+                        <div class="feature-name">Delete this workspace</div>
+                        <div class="feature-desc">Xóa workspace một lần và vĩnh viễn</div>
                     </div>
-                    <div class="pillar right-pillar"></div>
-                </div>
-
-                <div class="ribbon-item">
-                    <div class="pillar left-pillar"></div>
-                    <div class="ribbon-body empty"></div>
-                    <div class="pillar right-pillar"></div>
+                    <button class="btn-danger">Delete this workspace</button>
                 </div>
             </div>
         </main>
     </div>
 </div>
-
-@* MODALS / OVERLAYS *@
 @if (showMenu)
 {
     <div class="drawer-menu">
@@ -166,43 +187,18 @@
     </div>
     <div class="overlay transparent" @onclick="ToggleProfile"></div>
 }
-
-@code {
-    private bool showMenu = false;
-    private bool showSearch = false;
-    private bool showJoin = false;
-    private bool showProfile = false;
-
-    private void ToggleMenu() => showMenu = !showMenu;
-    private void ToggleSearch() => showSearch = !showSearch;
-    private void ToggleJoin() => showJoin = !showJoin;
-    private void ToggleProfile() => showProfile = !showProfile;
-}
-
 <style>
-    :root {
-        --dark-bg: #1a1a1a;
-        --header-h: 65px;
-    }
-
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    .app-wrapper {
-        background: #f0f0f0;
+    /* CSS CƠ BẢN */
+    .ws-container {
+        font-family: 'Segoe UI', sans-serif;
+        background: #fff;
         min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        display: flex;
-        flex-direction: column;
     }
 
-    /* TOPBAR */
+    /* HEADER & TABS */
     .top-navbar {
-        height: var(--header-h);
-        background: var(--dark-bg);
+        height: 65px;
+        background: #1a1a1a;
         color: white;
         display: flex;
         align-items: center;
@@ -231,17 +227,6 @@
         height: 32px;
         background: #444;
         border-radius: 6px;
-    }
-
-    .nav-title {
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .nav-center {
-        flex: 1;
-        display: flex;
-        justify-content: center;
     }
 
     .search-box {
@@ -286,175 +271,195 @@
         cursor: pointer;
     }
 
-    /* MAIN LAYOUT */
-    .main-container {
+    .ws-tabs-bar {
+        background: #333;
+        padding: 8px 20px 0;
         display: flex;
-        flex: 1;
-        min-height: calc(100vh - var(--header-h));
+        gap: 10px;
     }
 
-    .sidebar {
-        width: 280px;
-        background: #000;
-        padding-top: 20px;
-        flex-shrink: 0;
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #ccc;
+        padding: 8px 16px;
+        cursor: pointer;
     }
 
-    .nav-link {
-        display: block;
-        padding: 14px 25px;
-        color: #888;
-        text-decoration: none;
-        transition: 0.2s;
-    }
-
-        .nav-link.active {
-            background: white;
-            color: black;
-            border-radius: 12px 0 0 12px;
-            margin-left: 15px;
+        .tab-item.active {
+            background: #fff;
+            color: #000;
+            border-radius: 6px 6px 0 0;
             font-weight: bold;
         }
 
-    .main-content {
-        flex: 1;
-        background: white;
-        padding: 40px 60px;
+    /* LAYOUT */
+    .settings-layout {
+        display: flex;
+        padding: 30px 50px;
+        gap: 40px;
     }
 
-    .content-header-row {
+    .settings-sidebar {
+        width: 220px;
+    }
+
+    .side-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .side-item.active {
+            background: #1a1a1a;
+            color: white;
+        }
+
+    /* NỘI DUNG CHÍNH*/
+    .settings-content {
+        flex: 1;
+    }
+
+    .content-title-line {
+        font-size: 24px;
+        font-weight: bold;
+        border-bottom: 1.5px solid #ccc;
+        padding-bottom: 8px;
         margin-bottom: 25px;
     }
 
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #000;
+    .visibility-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
     }
 
-    .btn-new-workspace {
-        background: #1a1a1a;
+    .security-icon-box {
+        width: 50px;
+        height: 50px;
+        border: 1px solid #333;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .visibility-text {
+        flex: 1;
+    }
+
+    .btn-change-visibility {
+        background: #333;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    /* KHỐI BOX CÓ VIỀN */
+    .settings-group-box {
+        border: 1px solid #333;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .feature-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .feature-name {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .feature-desc {
+        font-size: 14px;
+        color: #666;
+        margin-top: 2px;
+    }
+
+    /* DANGER ZONE */
+    .danger-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-danger {
+        background: #ff4d4d;
         color: white;
         border: none;
         padding: 10px 20px;
         border-radius: 8px;
         cursor: pointer;
-        font-weight: 600;
+        font-weight: 500;
+        min-width: 180px;
     }
 
-    .workspace-search-container {
-        margin-bottom: 40px;
-    }
-
-    .inner-search {
-        display: flex;
-        align-items: center;
-        border: 1.5px solid #000;
-        border-radius: 8px;
-        padding: 5px 10px;
-        max-width: 100%;
-    }
-
-        .inner-search input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 8px;
-            font-size: 1rem;
-        }
-
-    .clear-icon {
-        cursor: pointer;
-        padding: 0 10px;
-        font-weight: bold;
-    }
-
-    .btn-search-inner {
-        background: transparent;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        border-left: 1.5px solid #000;
-        padding-left: 10px;
-    }
-
-    /* WORKSPACE RIBBON */
-    .workspace-ribbon-list {
-        display: flex;
-        flex-direction: column;
-        gap: 35px;
-    }
-
-    .ribbon-item {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        height: 120px;
-    }
-
-    .pillar {
-        width: 18px;
-        height: 100%;
-        background-color: #555;
-        border: 2px solid #000;
-        border-radius: 5px;
-        z-index: 2;
-    }
-
-    .ribbon-body {
-        flex: 1;
-        height: 85%;
-        background: white;
-        border-top: 2px solid #000;
-        border-bottom: 2px solid #000;
-        margin: 0 -5px;
-        z-index: 1;
-        padding: 15px 30px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+    /* CUSTOM CHECKBOX */
+    .custom-checkbox {
         position: relative;
-    }
-
-        .ribbon-body.empty {
-            background: #fafafa;
-        }
-
-    .ribbon-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .ws-name {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #000;
-    }
-
-    .ws-icon-settings {
+        width: 20px;
+        height: 20px;
         cursor: pointer;
     }
 
-    .ws-desc {
-        margin: 0;
-        color: #666;
-        font-size: 0.95rem;
-    }
+        .custom-checkbox input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
-    .ws-update {
+    .checkmark {
         position: absolute;
-        bottom: 15px;
-        right: 30px;
-        font-size: 0.85rem;
-        color: #888;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #fff;
+        border: 2px solid #333;
+        border-radius: 4px;
     }
 
-    /* OVERLAYS & MODALS */
+    .custom-checkbox input:checked ~ .checkmark {
+        background-color: #333;
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .custom-checkbox input:checked ~ .checkmark:after {
+        display: block;
+    }
+
     .overlay {
         position: fixed;
         inset: 0;
@@ -666,3 +671,15 @@
             color: #ff4d4d;
         }
 </style>
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+}
