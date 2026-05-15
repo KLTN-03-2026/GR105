@@ -1,0 +1,588 @@
+﻿@page "/veredit"
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<header class="top-navbar">
+    <div class="nav-left">
+        <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
+        <div class="app-logo"></div>
+        <span class="nav-title">Username / Workspace</span>
+    </div>
+    <div class="nav-center">
+        <div class="search-box" @onclick="ToggleSearch">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search anything..." readonly />
+        </div>
+    </div>
+    <div class="nav-right">
+        <button class="btn-join" @onclick="ToggleJoin">+ Join</button>
+        <button class="icon-btn" @onclick='() => Navigation.NavigateTo("/noti")'>🔔</button>
+        <button class="icon-btn" @onclick="ToggleProfile">👤</button>
+    </div>
+</header>
+
+<nav class="ws-tabs-bar">
+    <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docread")'>📄 Document</button>
+    <button class="tab-item">✉ Feedback</button>
+    <button class="tab-item active" @onclick='() => Navigation.NavigateTo("/docver")'>🕒 Versioning</button>
+    <button class="tab-item">📋 Logs</button>
+    <button class="tab-item">⚙ Settings</button>
+</nav>
+
+<div class="content-container">
+    <h2 class="content-title">Edit version</h2>
+    <hr class="title-divider" />
+
+    <div class="edit-form">
+        <div class="form-group-vertical">
+            <label class="section-label-alt">Version name</label>
+            <input type="text" class="ws-input-full" @bind="versionName" />
+        </div>
+
+        <div class="form-group-vertical">
+            <label class="section-label-alt">Version description</label>
+            <textarea class="ws-textarea-full" @bind="versionDescription" rows="6"></textarea>
+        </div>
+
+        <div class="form-group-vertical">
+            <label class="section-label-alt">Upload</label>
+            <div class="upload-zone">
+                <span class="arrow-down">↓</span> Attach file by dropping them here or select them
+            </div>
+        </div>
+
+        <div class="file-preview-row">
+            <div class="file-info-box">
+                <span class="file-icon">📄</span>
+                <span class="file-name-text">File name</span>
+            </div>
+            <button class="btn-remove-file" @onclick="ClearFile">✕</button>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-action-dark" @onclick="HandleSave">Save</button>
+            <button class="btn-action-dark" @onclick="HandleCancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
+
+<style>
+    /* --- SYSTEM LAYOUT --- */
+    .top-navbar {
+        height: 65px;
+        background: #1a1a1a;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .app-logo {
+        width: 32px;
+        height: 32px;
+        background: #444;
+        border-radius: 6px;
+    }
+
+    .search-box {
+        background: #333;
+        border-radius: 8px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        width: 400px;
+        cursor: pointer;
+    }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            outline: none;
+            margin-left: 10px;
+        }
+
+    .nav-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .btn-join {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .ws-tabs-bar {
+        background: #2d2d2d;
+        padding: 10px 20px 0;
+        display: flex;
+        gap: 5px;
+    }
+
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        padding: 10px 15px;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+    }
+
+        .tab-item.active {
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+
+    /* --- EDIT PAGE CONTENT --- */
+    .content-container {
+        padding: 40px 60px;
+        max-width: 1200px;
+        font-family: sans-serif;
+    }
+
+    .content-title {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .title-divider {
+        border: 0;
+        border-top: 3px solid #000;
+        margin-bottom: 30px;
+    }
+
+    .form-group-vertical {
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .section-label-alt {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .ws-input-full, .ws-textarea-full {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #000;
+        border-radius: 8px;
+        font-size: 18px;
+        outline: none;
+    }
+
+    .upload-zone {
+        border: 1px solid #000;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        cursor: pointer;
+    }
+
+    .arrow-down {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .file-preview-row {
+        border: 1px solid #000;
+        border-radius: 8px;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .file-info-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+    }
+
+    .btn-remove-file {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 20px;
+    }
+
+    .btn-action-dark {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 12px 45px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    /* --- OVERLAYS CSS --- */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+        .overlay.transparent {
+            background: transparent;
+        }
+
+    .drawer-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        background: #000;
+        color: white;
+        z-index: 200;
+        padding: 20px;
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .user-large-icon {
+        font-size: 40px;
+    }
+
+    .close-drawer {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .drawer-nav-item {
+        padding: 12px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+        .drawer-nav-item:hover {
+            background: #222;
+            color: white;
+        }
+
+    .nav-divider {
+        height: 1px;
+        background: #333;
+        margin: 15px 0;
+    }
+
+    .nav-label {
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .nav-search-wrap input {
+        width: 100%;
+        background: #222;
+        border: 1px solid #444;
+        padding: 8px;
+        color: white;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 600px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        align-items: center;
+        color: white;
+    }
+
+        .search-modal-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        background: #222;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #444;
+        z-index: 200;
+        width: 400px;
+        color: white;
+    }
+
+    .input-row-dark {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+        .input-row-dark input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+        }
+
+    .tab-row-dark {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+        .tab-row-dark span {
+            cursor: pointer;
+            color: #888;
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+            .tab-row-dark span.active {
+                color: white;
+                border-bottom: 2px solid white;
+            }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        width: 220px;
+        padding: 10px;
+        color: white;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 5px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+        .drop-item:hover {
+            background: #222;
+            color: white;
+        }
+
+        .drop-item.logout {
+            color: #ff4d4d;
+        }
+</style>
+
+@code {
+    private bool showMenu = false;
+    private bool showSearch = false;
+    private bool showJoin = false;
+    private bool showProfile = false;
+
+    private string versionName = "";
+    private string versionDescription = "";
+
+    private void ToggleMenu() => showMenu = !showMenu;
+    private void ToggleSearch() => showSearch = !showSearch;
+    private void ToggleJoin() => showJoin = !showJoin;
+    private void ToggleProfile() => showProfile = !showProfile;
+
+    private void HandleSave()
+    {
+        // Logic lưu dữ liệu tại đây
+        Navigation.NavigateTo("/docver");
+    }
+
+    private void HandleCancel()
+    {
+        Navigation.NavigateTo("/docver");
+    }
+
+    private void ClearFile()
+    {
+       
+    }
+}

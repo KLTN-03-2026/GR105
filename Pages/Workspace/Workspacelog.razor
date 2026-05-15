@@ -1,9 +1,9 @@
-﻿@page "/versioningedit"
+﻿@page "/workspace-logs"
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-<div class="workspace-container">
-    <!-- SECTION 1: TOP NAVIGATION BAR -->
+<div class="app-container">
+    @* --- SECTION 1: TOP NAVIGATION BAR --- *@
     <header class="top-navbar">
         <div class="nav-left">
             <button class="menu-toggle" @onclick="ToggleMenu">☰</button>
@@ -23,7 +23,7 @@
         </div>
     </header>
 
-    <!-- SECTION 2: SUB-TAB NAVIGATION -->
+    @* --- SECTION 2: SUB-TAB NAVIGATION --- *@
     <nav class="ws-tabs-bar">
         <button class="tab-item" @onclick='() => Navigation.NavigateTo("/docread")'>📄 Document</button>
         <button class="tab-item">✉ Feedback</button>
@@ -32,101 +32,159 @@
         <button class="tab-item active">⚙ Settings</button>
     </nav>
 
-    <!-- SECTION 3: ACTION CONTROLS -->
-    <section class="action-bar">
-        <div class="toggle-group">
-            <button class="toggle-btn active">Version</button>
-            <button class="toggle-btn">Tags</button>
+    @* --- MAIN CONTENT (TIMELINE) --- *@
+    <main class="content">
+        <div class="content-header">
+            <h1>Workspace Logs</h1>
+            <div class="filters">
+                <select class="filter-dropdown">
+                    <option>👥 All co-writer</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>📅 All time</option>
+                </select>
+            </div>
         </div>
 
-        <div class="search-feedback">
-            <input type="text" placeholder="Search feedbacks..." />
-            <button class="search-icon-btn"><i class="oi oi-magnifying-glass"></i></button>
-        </div>
-
-        <button class="new-version-btn">New version</button>
-    </section>
-
-    <!-- SECTION 4: VERSION LIST -->
-    <main class="content-area">
-        @for (int i = 0; i < 2; i++)
-        {
-            <div class="version-row">
-                <!-- Metadata Sidebar -->
-                <div class="version-meta">
-                    <div class="meta-item"><i class="oi oi-person"></i> Username</div>
-                    <div class="meta-item"><i class="oi oi-tag"></i> Tags</div>
-                    <div class="meta-date">Created X days ago</div>
-                </div>
-
-                <!-- Version Card -->
-                <div class="version-card">
-                    <div class="card-header">
-                        <div class="header-text">
-                            <h3>Version name</h3>
-                            <p>Description</p>
+        <section class="timeline-container">
+            @if (LogGroups != null)
+            {
+                @foreach (var group in LogGroups)
+                {
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            <div class="dot"></div>
+                            <div class="line"></div>
                         </div>
-                        <div class="header-actions">
-                            <button class="card-icon-btn"><i class="oi oi-pencil"></i></button>
-                            <button class="card-icon-btn"><i class="oi oi-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="expandable-section @(i == 0 ? "expanded" : "")">
-                            <div class="section-title">
-                                <i class="oi @(i == 0 ? "oi-caret-bottom" : "oi-caret-right")"></i>
-                                Documents <span class="badge">@(i == 0 ? "2" : "3")</span>
+                        <div class="timeline-content">
+                            <div class="timeline-date">@group.DateLabel</div>
+                            <div class="log-cards-wrapper">
+                                @foreach (var log in group.Logs)
+                                {
+                                    <div class="log-card">
+                                        <div class="log-title">@log.Title</div>
+                                        <div class="log-meta">
+                                            <span class="user-tag">👤 @log.Username</span>
+                                            <span class="time-tag">@log.TimeAgo</span>
+                                        </div>
+                                    </div>
+                                }
                             </div>
-
-                            @if (i == 0)
-                            {
-                                <div class="document-list">
-                                    <div class="doc-item">
-                                        <span><i class="oi oi-file"></i> Documents.pdf</span>
-                                        <span class="time">X days ago</span>
-                                    </div>
-                                    <div class="doc-item">
-                                        <span><i class="oi oi-file"></i> Documents (zip)</span>
-                                        <span class="time">X days ago</span>
-                                    </div>
-                                </div>
-                            }
                         </div>
                     </div>
+                }
+            }
+            @* Điểm kết thúc timeline *@
+            <div class="timeline-item">
+                <div class="timeline-marker">
+                    <div class="dot"></div>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-date">Day X</div>
                 </div>
             </div>
-        }
+        </section>
     </main>
 </div>
 
+@* --- SECTION 4: OVERLAYS & MODALS LOGIC --- *@
+
+@if (showMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
+            <div class="drawer-nav-item">✉ Feedback</div>
+            <div class="drawer-nav-item">📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            <div class="drawer-nav-item small">👤 Project Alpha</div>
+            <div class="drawer-nav-item small">👤 Team Beta</div>
+        </nav>
+    </div>
+    <div class="overlay" @onclick="ToggleMenu"></div>
+}
+
+@if (showSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input type="text" placeholder="Search anything..." autofocus />
+            <button @onclick="ToggleSearch">✕</button>
+        </div>
+    </div>
+    <div class="overlay" @onclick="ToggleSearch"></div>
+}
+
+@if (showJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span style="font-weight: bold;">Join new workspace</span>
+            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row-dark">
+                <i>👤</i>
+                <input type="text" placeholder="Username" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <div class="tab-row-dark">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row-dark">
+                <input type="text" placeholder="Workspace Link/ID" />
+                <button class="copy-btn">⧉</button>
+            </div>
+            <button class="submit-join-btn">Send request to join workspace</button>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleJoin"></div>
+}
+@if (showProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>Username</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
+        <div class="drop-item">📁 Workspaces</div>
+        <div class="drop-item">✉ Feedback</div>
+        <div class="drop-item">⚙ Settings</div>
+        <div class="drop-item logout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="ToggleProfile"></div>
+}
 <style>
-
     :root {
-        --bg-dark: #1e1e1e;
-        --nav-dark: #252525;
-        --accent-white: #ffffff;
-        --text-gray: #b0b0b0;
-        --border-color: #444;
-        --dark-bg: #1a1a1a;
-        --header-h: 65px;
+        --bg-dark: #1a1a1a;
+        --border-black: #000000;
+        --text-muted: #666666;
     }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    .workspace-container {
-        width: 100%;
+    .app-container {
+        display: flex;
+        flex-direction: column;
         min-height: 100vh;
-        background-color: #f5f5f5;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #fff;
     }
 
+    /* --- TOPBAR STYLE --- */
     .top-navbar {
-        height: #1a1a1a;
-        background: var(--dark-bg);
+        height: 65px;
+        background: #1a1a1a;
         color: white;
         display: flex;
         align-items: center;
@@ -199,70 +257,7 @@
         cursor: pointer;
     }
 
-    .nav-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .menu-toggle {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 22px;
-        cursor: pointer;
-    }
-
-    .app-logo {
-        width: 32px;
-        height: 32px;
-        background: #444;
-        border-radius: 6px;
-    }
-
-    .search-box {
-        background: #333;
-        border-radius: 8px;
-        padding: 8px 15px;
-        display: flex;
-        align-items: center;
-        width: 400px;
-        cursor: pointer;
-    }
-
-        .search-box input {
-            background: transparent;
-            border: none;
-            color: white;
-            width: 100%;
-            outline: none;
-            margin-left: 10px;
-        }
-
-    .nav-right {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-
-    .icon-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    .btn-join {
-        background: transparent;
-        border: 1px solid #555;
-        color: white;
-        padding: 5px 15px;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    /* Sub Nav */
+    /* --- SUB NAV FIXED --- */
     .ws-tabs-bar {
         background: #2d2d2d;
         padding: 10px 20px 0;
@@ -285,7 +280,7 @@
             font-weight: bold;
         }
 
-    
+
     .settings-layout {
         display: flex;
         padding: 20px;
@@ -406,171 +401,111 @@
         font-size: 14px;
     }
 
-    /* Action Bar */
-    .action-bar {
+    /* --- TIMELINE FIXED --- */
+    .content {
+        padding: 30px 50px;
+    }
+
+    .content-header h1 {
+        font-weight: bold; 
+        margin: 0; 
+        font-size: 1.5rem; 
+    }
+
+    .content-header {
         display: flex;
-        padding: 30px 60px;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+
+    .filters {
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-dropdown {
+        border: 1px solid #000;
+        padding: 5px 10px;
+        border-radius: 8px;
+        background: white;
+    }
+
+    .timeline-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .timeline-item {
+        display: flex;
         gap: 20px;
-        align-items: center;
     }
 
-    .toggle-group {
-        border: 1px solid #000;
-        border-radius: 8px;
-        overflow: hidden;
+    .timeline-marker {
         display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 12px;
     }
 
-    .toggle-btn {
-        padding: 8px 25px;
-        border: none;
-        background: white;
-        cursor: pointer;
+    .dot {
+        width: 10px;
+        height: 10px;
+        background: #000;
+        border-radius: 50%;
+        margin-top: 6px;
     }
 
-        .toggle-btn.active {
-            background: #333;
-            color: white;
-        }
+    .line {
+        width: 2px;
+        background: #000;
+        flex-grow: 1; 
+        min-height: 30px;
+    }
 
-    .search-feedback {
+    .timeline-content {
         flex-grow: 1;
-        display: flex;
-        border: 2px solid #000;
-        border-radius: 12px;
-        overflow: hidden;
-        max-width: 600px;
+        padding-bottom: 20px;
     }
 
-        .search-feedback input {
-            flex-grow: 1;
-            padding: 10px;
-            border: none;
-        }
-
-    .search-icon-btn {
-        background: #222;
-        color: white;
-        border: none;
-        padding: 0 15px;
-    }
-
-    .new-version-btn {
-        background: #222;
-        color: white;
-        padding: 10px 30px;
-        border-radius: 12px;
-        border: none;
-    }
-
-    /* Version Rows */
-    .content-area {
-        padding: 0 60px;
-    }
-
-    .version-row {
-        display: flex;
-        gap: 40px;
-        margin-bottom: 40px;
-        align-items: flex-start;
-    }
-
-    .version-meta {
-        width: 150px;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .meta-item {
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .meta-date {
-        font-size: 0.85rem;
-        color: #666;
-        margin-top: 15px;
-    }
-
-    .version-card {
-        flex-grow: 1;
-        border: 2px solid #000;
-        border-radius: 12px;
-        overflow: hidden;
-        background: white;
-    }
-
-    .card-header {
-        background: #222;
-        color: white;
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .header-text h3 {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    .header-text p {
-        margin: 5px 0 0 0;
-        opacity: 0.8;
-    }
-
-    .card-icon-btn {
-        background: white;
-        border: none;
-        width: 35px;
-        height: 35px;
-        border-radius: 6px;
-        margin-left: 10px;
-    }
-
-    .card-body {
-        padding: 15px;
-    }
-
-    .section-title {
+    .timeline-date {
         font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        margin-bottom: 15px;
+        line-height: 1.2;
     }
 
-    .badge {
-        background: #333;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-size: 0.75rem;
-    }
-
-    .document-list {
-        margin-top: 15px;
+    .log-cards-wrapper {
         border: 1px solid #000;
         border-radius: 8px;
+        max-width: 800px;
+        overflow: hidden;
     }
 
-    .doc-item {
-        padding: 10px 15px;
-        display: flex;
-        justify-content: space-between;
+    .log-card {
+        padding: 15px 20px;
         border-bottom: 1px solid #eee;
+        background: #fff;
     }
 
-        .doc-item:last-child {
+        .log-card:last-child {
             border-bottom: none;
         }
 
-        .doc-item .time {
-            color: #888;
-            font-size: 0.8rem;
-        }
-    /* --- OVERLAYS & MODALS --- */
+    .log-title {
+        font-weight: 500;
+    }
+
+    .log-meta {
+        display: flex;
+        gap: 20px;
+        font-size: 13px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    /* --- OVERLAYS --- */
     .overlay {
         position: fixed;
         inset: 0;
@@ -783,87 +718,8 @@
         }
 </style>
 
-@if (showMenu)
-{
-    <div class="drawer-menu">
-        <div class="drawer-header">
-            <i class="user-large-icon">👤</i>
-            <button class="close-drawer" @onclick="ToggleMenu">✕</button>
-        </div>
-        <nav class="drawer-nav">
-            <div class="drawer-nav-item" @onclick='() => Navigation.NavigateTo("/")'>⌂ Dashboard</div>
-            <div class="drawer-nav-item">✉ Feedback</div>
-            <div class="drawer-nav-item">📞 Contact Us</div>
-            <div class="nav-divider"></div>
-            <div class="nav-label">Top workspaces</div>
-            <div class="nav-search-wrap">
-                <input type="text" placeholder="Search workspace..." />
-            </div>
-            <div class="drawer-nav-item small">👤 Project Alpha</div>
-            <div class="drawer-nav-item small">👤 Team Beta</div>
-        </nav>
-    </div>
-    <div class="overlay" @onclick="ToggleMenu"></div>
-}
-
-@if (showSearch)
-{
-    <div class="search-modal">
-        <div class="search-modal-bar">
-            <span>⌕</span>
-            <input type="text" placeholder="Search anything..." autofocus />
-            <button @onclick="ToggleSearch">✕</button>
-        </div>
-    </div>
-    <div class="overlay" @onclick="ToggleSearch"></div>
-}
-
-@if (showJoin)
-{
-    <div class="join-dropdown">
-        <div class="dropdown-header">
-            <span style="font-weight: bold;">Join new workspace</span>
-            <button @onclick="ToggleJoin" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
-        </div>
-        <div class="dropdown-body">
-            <div class="input-row-dark">
-                <i>👤</i>
-                <input type="text" placeholder="Username" />
-                <button class="copy-btn">⧉</button>
-            </div>
-            <div class="tab-row-dark">
-                <span class="active">HTTPS</span>
-                <span>Users</span>
-                <span>Workspace ID</span>
-            </div>
-            <div class="input-row-dark">
-                <input type="text" placeholder="Workspace Link/ID" />
-                <button class="copy-btn">⧉</button>
-            </div>
-            <button class="submit-join-btn">Send request to join workspace</button>
-        </div>
-    </div>
-    <div class="overlay transparent" @onclick="ToggleJoin"></div>
-}
-
-@if (showProfile)
-{
-    <div class="profile-dropdown">
-        <div class="profile-user-info">
-            <i>👤</i>
-            <span>Username</span>
-        </div>
-        <div class="dropdown-divider"></div>
-        <div class="drop-item" @onclick='() => Navigation.NavigateTo("/profile-detail")'>👤 Profile</div>
-        <div class="drop-item">📁 Workspaces</div>
-        <div class="drop-item">✉ Feedback</div>
-        <div class="drop-item">⚙ Settings</div>
-        <div class="drop-item logout">↪ Sign out</div>
-    </div>
-    <div class="overlay transparent" @onclick="ToggleProfile"></div>
-}
-
 @code {
+
     private bool showMenu = false;
     private bool showSearch = false;
     private bool showJoin = false;
@@ -873,4 +729,19 @@
     private void ToggleSearch() => showSearch = !showSearch;
     private void ToggleJoin() => showJoin = !showJoin;
     private void ToggleProfile() => showProfile = !showProfile;
+
+    // Mock Data
+    private List<LogGroup> LogGroups = new()
+    {
+        new LogGroup {
+            DateLabel = "Day X",
+            Logs = new List<LogItem> {
+                new LogItem { Title = "Log title", Username = "username", TimeAgo = "X days ago" },
+                new LogItem { Title = "Log title", Username = "username", TimeAgo = "X days ago" }
+            }
+        }
+    };
+
+    public class LogGroup { public string DateLabel { get; set; } = ""; public List<LogItem> Logs { get; set; } = new(); }
+    public class LogItem { public string Title { get; set; } = ""; public string Username { get; set; } = ""; public string TimeAgo { get; set; } = ""; }
 }
