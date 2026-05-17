@@ -6,7 +6,7 @@
         Task<Guid> Create(string username, string email, string passwordHash);
         Task<User?> GetByEmail(string email);
         Task<User?> GetByIdAsync(Guid id);
-        Task<bool> UpdateProfileAsync(Guid id, string username);
+        Task<bool> UpdateProfileAsync(Guid id, string? username, string? bio, string? role, string? team, string? division);
         Task<bool> UpdatePasswordAsync(Guid id, string newPasswordHash);
         
         Task CreatePasswordResetTokenAsync(Guid userId, string token, DateTime expiredAt);

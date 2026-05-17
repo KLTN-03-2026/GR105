@@ -1,0 +1,259 @@
+@page "/noti"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout StandardLayout
+@rendermode InteractiveAuto
+
+<div class="notification-layout">
+    <aside class="noti-sidebar">
+        <div class="noti-nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12H16L14 15H10L8 12H2V20H22V12Z" fill="white" opacity="0.2" />
+                <path d="M22 12H16L14 15H10L8 12H2V20H22V12Z" stroke="white" />
+                <path d="M2 12L7.5 4H16.5L22 12" stroke="white" />
+            </svg>
+            <span class="nav-text">Inbox</span>
+        </div>
+        <div class="noti-nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21L12 16L5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21Z" stroke="white" />
+            </svg>
+            <span class="nav-text">Saved</span>
+        </div>
+        <div class="noti-nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6L9 17L4 12" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="nav-text">Done</span>
+        </div>
+    </aside>
+
+    <main class="noti-main-content">
+        <div class="content-wrapper">
+            <header class="toolbar">
+                <div class="filter-group">
+                    <button class="filter-btn active">All</button>
+                    <button class="filter-btn">Unread</button>
+                </div>
+                <div class="noti-search-box">
+                    <span class="search-icon-inline">🔍</span>
+                    <input type="text" placeholder="Search notifications" />
+                </div>
+                <div class="sort-badge">
+                    Sort by: <strong>Newest to oldest</strong>
+                </div>
+            </header>
+
+            <div class="notification-list-card">
+                <div class="list-header">
+                    <input type="checkbox" class="custom-checkbox" />
+                    <span>Select all</span>
+                </div>
+
+                @for (int i = 1; i <= 8; i++)
+                {
+                    <div class="notification-item @(i == 1 ? "selected" : "")">
+                        <div class="item-left">
+                            <input type="checkbox" checked="@(i == 1)" class="custom-checkbox" />
+                            <div class="item-info">
+                                <p class="meta-data">User_@i / Workspace_Gamma</p>
+                                <p class="preview-text">Update available for the project task #@i...</p>
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            <span>👤</span>
+                            <span>✔</span>
+                            <span>🔖</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </main>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.SetPageMetadata("Notifications", "notifications");
+    }
+}
+
+<style>
+    .notification-layout {
+        flex: 1;
+        display: flex;
+        background: #1a1a1a;
+        min-height: calc(100vh - 65px);
+    }
+
+    .noti-sidebar {
+        width: 240px;
+        padding: 20px 0;
+    }
+
+    .noti-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 25px;
+        color: #888;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .noti-nav-item.active {
+        color: white;
+        background: rgba(255,255,255,0.05);
+        border-radius: 0 20px 20px 0;
+    }
+
+    .nav-icon {
+        width: 20px;
+    }
+
+    .noti-main-content {
+        flex: 1;
+        background: white;
+        border-radius: 30px 0 0 0;
+        padding: 40px;
+        overflow-y: auto;
+    }
+
+    .content-wrapper {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .filter-group {
+        display: flex;
+        background: #f0f0f0;
+        padding: 4px;
+        border-radius: 10px;
+    }
+
+    .filter-btn {
+        border: none;
+        padding: 7px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        background: transparent;
+        font-weight: 600;
+    }
+
+    .filter-btn.active {
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        color: #000;
+    }
+
+    .noti-search-box {
+        flex: 1;
+        position: relative;
+    }
+
+    .noti-search-box input {
+        width: 100%;
+        padding: 12px 45px;
+        border-radius: 14px;
+        border: 1.5px solid #eee;
+        background: #f9f9f9;
+        font-size: 0.95rem;
+    }
+
+    .search-icon-inline {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+    }
+
+    .sort-badge {
+        background: #1a1a1a;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+    }
+
+    .notification-list-card {
+        background: #000;
+        border-radius: 24px;
+        color: white;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+
+    .list-header {
+        padding: 18px 30px;
+        border-bottom: 1px solid #222;
+        color: #666;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .notification-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 22px 30px;
+        border-bottom: 1px solid #111;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .notification-item:hover {
+        background: #111;
+    }
+
+    .notification-item.selected {
+        background: #1a1a1a;
+        border-left: 4px solid white;
+    }
+
+    .item-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .meta-data {
+        color: #555;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .preview-text {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .item-actions {
+        display: flex;
+        gap: 20px;
+        opacity: 0;
+        align-items: center;
+    }
+
+    .notification-item:hover .item-actions {
+        opacity: 0.8;
+    }
+
+    .custom-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: #444;
+        cursor: pointer;
+    }
+</style>

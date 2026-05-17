@@ -1,0 +1,70 @@
+@page "/workspace/documents/trash/{WorkspaceId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="workspace-page-content">
+    <!-- ACTION BAR -->
+    <section class="ws-action-bar">
+        <div class="ws-breadcrumb">
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo("/workspace")'>Workspaces</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo($"/workspace/files/{WorkspaceId}")'>Documents</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-current">Trash</span>
+        </div>
+        <div class="ws-actions">
+            <button class="ws-btn-outline text-red">Empty Trash</button>
+        </div>
+    </section>
+
+    <!-- TRASH CONTENT -->
+    <div class="ws-content-grid">
+        <div class="trash-empty-state">
+            <div class="trash-icon">🗑️</div>
+            <h3>Your trash is empty</h3>
+            <p>Documents you delete will appear here for 30 days before being permanently removed.</p>
+            <button class="ws-btn-primary" @onclick='() => Navigation.NavigateTo($"/workspace/files/{WorkspaceId}")'>Back to Documents</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+        LayoutState.SetWorkspaceMetadata("Trash", "documents", WorkspaceId, isOwner);
+    }
+}
+
+<style>
+    .workspace-page-content { background: #f8f9fa; min-height: calc(100vh - 120px); }
+
+    /* Standardized Action Bar */
+    .ws-action-bar { padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eee; }
+    .ws-breadcrumb { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+    .crumb-link { color: #888; cursor: pointer; transition: 0.2s; }
+    .crumb-link:hover { color: black; text-decoration: underline; }
+    .crumb-sep { color: #ddd; }
+    .crumb-current { font-weight: 700; color: #111; }
+
+    .ws-btn-primary { background: black; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .ws-btn-outline { background: white; color: black; border: 2px solid #000; padding: 8px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    .text-red { color: #dc3545; border-color: #dc3545 !important; }
+
+    .ws-content-grid { padding: 80px 40px; display: flex; justify-content: center; }
+    .trash-empty-state { text-align: center; max-width: 400px; }
+    .trash-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.2; }
+    .trash-empty-state h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; }
+    .trash-empty-state p { color: #777; margin-bottom: 30px; line-height: 1.5; }
+</style>

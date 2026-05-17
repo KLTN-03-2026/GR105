@@ -1,0 +1,93 @@
+@using frontend.Client.Core.State
+@inject LayoutStateService LayoutState
+@inject NavigationManager Navigation
+@implements IDisposable
+@rendermode InteractiveAuto
+
+<aside class="settings-sidebar">
+    <div class="sidebar-user">
+        <div class="sidebar-avatar">👤</div>
+        <div class="sidebar-info">
+            <h3>Username</h3>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/profile/edit" class="side-link @(LayoutState.ActiveSidebarItem == "profile" ? "active" : "")">👤 Profile</a>
+        <a href="/settings/account" class="side-link @(LayoutState.ActiveSidebarItem == "account" ? "active" : "")">⚙ Account</a>
+        <a href="/settings/appearance" class="side-link @(LayoutState.ActiveSidebarItem == "appearance" ? "active" : "")">🎨 Appearance</a>
+        <a href="/settings/notifications" class="side-link @(LayoutState.ActiveSidebarItem == "notifications" ? "active" : "")">🔔 Notification</a>
+        <a href="/settings/workspace" class="side-link @(LayoutState.ActiveSidebarItem == "workspace" ? "active" : "")">📁 Workspace</a>
+        <a href="/settings/email" class="side-link @(LayoutState.ActiveSidebarItem == "email" ? "active" : "")">✉ Email</a>
+    </nav>
+</aside>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+}
+
+<style>
+    .settings-sidebar {
+        width: 280px;
+        background: #111;
+        color: white;
+        padding: 30px 20px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .sidebar-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+    }
+
+    .sidebar-info h3 {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .side-link {
+        display: block;
+        text-decoration: none;
+        color: #999;
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        transition: 0.2s;
+        font-size: 0.95rem;
+    }
+
+    .side-link:hover {
+        background: #222;
+        color: white;
+    }
+
+    .side-link.active {
+        background: white;
+        color: black;
+        font-weight: 700;
+    }
+</style>

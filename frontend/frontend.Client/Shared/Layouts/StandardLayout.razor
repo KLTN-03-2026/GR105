@@ -1,0 +1,49 @@
+@inherits LayoutComponentBase
+@using frontend.Client.Shared.Components
+@using frontend.Client.Core.State
+@inject AuthState AuthState
+@rendermode InteractiveAuto
+
+<div class="app-wrapper">
+    <TopNavbar />
+
+    <div class="standard-layout-container">
+        <MainSidebar />
+        
+        <main class="standard-main-content">
+            @Body
+        </main>
+    </div>
+
+    <GlobalModals />
+    <DrawerMenu />
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthState.InitializeAsync();
+    }
+}
+
+<style>
+    .app-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #f5f5f5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .standard-layout-container {
+        display: flex;
+        flex: 1;
+        min-height: calc(100vh - 65px);
+    }
+
+    .standard-main-content {
+        flex: 1;
+        background: white;
+        overflow-y: auto;
+    }
+</style>

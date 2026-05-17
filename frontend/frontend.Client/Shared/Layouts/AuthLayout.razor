@@ -1,0 +1,25 @@
+@inherits LayoutComponentBase
+@rendermode InteractiveAuto
+
+<div class="auth-layout-wrapper">
+    <div class="auth-center-container">
+        @Body
+    </div>
+</div>
+
+<style>
+    .auth-layout-wrapper {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #111;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .auth-center-container {
+        width: 100%;
+        max-width: 450px;
+        padding: 20px;
+    }
+</style>

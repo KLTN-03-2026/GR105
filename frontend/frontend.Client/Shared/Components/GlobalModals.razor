@@ -1,0 +1,301 @@
+@using frontend.Client.Core.State
+@using frontend.Client.Shared.Components.Forms
+@using frontend.Client.Features.Auth.Services
+@inject LayoutStateService LayoutState
+@inject AuthState AuthState
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@implements IDisposable
+@rendermode InteractiveAuto
+
+@if (LayoutState.ShowSearch)
+{
+    <div class="search-modal">
+        <div class="search-modal-bar">
+            <span>⌕</span>
+            <input @bind="_searchQuery" @bind:event="oninput" placeholder="Search anything..." autofocus class="flex-1 bg-transparent border-0 text-white outline-none px-3" />
+            <AppButton OnClick="LayoutState.ToggleSearch" Class="bg-transparent border-0 text-white">✕</AppButton>
+        </div>
+    </div>
+    <div class="overlay" @onclick="LayoutState.ToggleSearch"></div>
+}
+
+@if (LayoutState.ShowJoin)
+{
+    <div class="join-dropdown">
+        <div class="dropdown-header">
+            <span>Join new workspace</span>
+            <AppButton OnClick="LayoutState.ToggleJoin" Class="bg-transparent border-0 text-white">✕</AppButton>
+        </div>
+        <div class="dropdown-body">
+            <div class="input-row">
+                <i>👤</i>
+                <input @bind="_joinUsername" placeholder="Username" class="flex-1 bg-transparent border-0 text-white outline-none px-2" />
+                <AppButton Class="copy-btn">⧉</AppButton>
+            </div>
+            <div class="tab-row">
+                <span class="active">HTTPS</span>
+                <span>Users</span>
+                <span>Workspace ID</span>
+            </div>
+            <div class="input-row">
+                <input @bind="_joinWorkspaceId" placeholder="Workspace Link/ID" class="flex-1 bg-transparent border-0 text-white outline-none px-2" />
+                <AppButton Class="copy-btn">⧉</AppButton>
+            </div>
+            <AppButton OnClick="HandleJoinRequest" Class="w-100" style="background: #444;">Send request to join workspace</AppButton>
+        </div>
+    </div>
+    <div class="overlay transparent" @onclick="LayoutState.ToggleJoin"></div>
+}
+
+@if (LayoutState.ShowProfile)
+{
+    <div class="profile-dropdown">
+        <div class="profile-user-info">
+            <i>👤</i>
+            <span>@(AuthState.User?.Username ?? "Guest")</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="drop-item" @onclick='() => NavigateTo("/profile")'>👤 Profile</div>
+        <div class="drop-item" @onclick='() => NavigateTo("/workspace")'>📁 Workspaces</div>
+        <div class="drop-item" @onclick='() => NavigateTo("/support/feedback")'>✉ Feedback</div>
+        <div class="drop-item" @onclick='() => NavigateTo("/settings/account")'>⚙ Settings</div>
+
+        <div class="drop-item logout" @onclick="HandleLogout">↪ Sign out</div>
+    </div>
+    <div class="overlay transparent" @onclick="LayoutState.ToggleProfile"></div>
+}
+
+@code {
+    private string _searchQuery = string.Empty;
+    private string _joinUsername = string.Empty;
+    private string _joinWorkspaceId = string.Empty;
+    private System.Timers.Timer? _debounceTimer;
+
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+        _debounceTimer?.Dispose();
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        _searchQuery = e.Value?.ToString() ?? string.Empty;
+        
+        if (_debounceTimer != null)
+        {
+            _debounceTimer.Stop();
+            _debounceTimer.Dispose();
+        }
+
+        _debounceTimer = new System.Timers.Timer(300); // 300ms debounce
+        _debounceTimer.Elapsed += (s, ev) =>
+        {
+            _debounceTimer.Stop();
+            InvokeAsync(async () =>
+            {
+                // Perform actual search API call here
+                Console.WriteLine($"[Search] Debounced searching for: {_searchQuery}");
+                await Task.CompletedTask;
+            });
+        };
+        _debounceTimer.Start();
+    }
+
+    private void NavigateTo(string path)
+    {
+        LayoutState.CloseAllModals();
+        Navigation.NavigateTo(path);
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+    }
+
+    private void HandleJoinRequest()
+    {
+        if (!string.IsNullOrEmpty(_joinWorkspaceId))
+        {
+            LayoutState.CloseAllModals();
+            Navigation.NavigateTo($"/workspace/join/{_joinWorkspaceId}");
+        }
+    }
+}
+
+<style>
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+    }
+
+    .overlay.transparent {
+        background: transparent;
+    }
+
+    /* Search Modal */
+    .search-modal {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 800px;
+        z-index: 200;
+    }
+
+    .search-modal-bar {
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        padding: 15px 25px;
+        border-radius: 12px;
+        border: 1px solid #444;
+        color: white;
+    }
+
+    .search-modal-bar input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        outline: none;
+        margin: 0 15px;
+    }
+
+    .search-modal-bar button {
+        background: transparent;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    /* Join Dropdown */
+    .join-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 80px;
+        width: 450px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 15px;
+        z-index: 200;
+        color: white;
+        padding: 20px;
+    }
+
+    .dropdown-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .dropdown-header button {
+        background: transparent;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .input-row {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        align-items: center;
+    }
+
+    .input-row input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: white;
+        outline: none;
+    }
+
+    .tab-row {
+        display: flex;
+        gap: 20px;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+    }
+
+    .tab-row span {
+        cursor: pointer;
+        color: #888;
+        padding-bottom: 5px;
+    }
+
+    .tab-row span.active {
+        color: white;
+        border-bottom: 2px solid white;
+    }
+
+    .submit-join-btn {
+        width: 100%;
+        background: #444;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    /* Profile Dropdown */
+    .profile-dropdown {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        width: 250px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        z-index: 200;
+        color: white;
+        padding: 15px;
+    }
+
+    .profile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #333;
+        margin: 10px 0;
+    }
+
+    .drop-item {
+        padding: 10px;
+        color: #ccc;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .drop-item:hover {
+        background: #222;
+        color: white;
+    }
+
+    .drop-item.logout {
+        color: #ff4d4d;
+    }
+</style>

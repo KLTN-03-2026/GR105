@@ -1,0 +1,89 @@
+@using frontend.Client.Core.State
+@inject LayoutStateService LayoutState
+@inject NavigationManager Navigation
+@implements IDisposable
+@rendermode InteractiveAuto
+
+<aside class="ws-settings-sidebar">
+    <nav class="side-menu">
+        <button class="side-item @(LayoutState.ActiveSidebarItem == "general" ? "active" : "")" @onclick='() => NavigateTo("/workspace/settings/general")'>
+            <span class="icon">⚙</span> General
+        </button>
+        <button class="side-item @(LayoutState.ActiveSidebarItem == "co-writers" ? "active" : "")" @onclick='() => NavigateTo("/workspace/settings/co-writers")'>
+            <span class="icon">👥</span> Co-Writers
+        </button>
+        <button class="side-item @(LayoutState.ActiveSidebarItem == "security" ? "active" : "")" @onclick='() => NavigateTo("/workspace/settings/security")'>
+            <span class="icon">🛡</span> Security
+        </button>
+    </nav>
+</aside>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+
+    private void NavigateTo(string baseRoute)
+    {
+        if (LayoutState.CurrentWorkspaceId != Guid.Empty)
+        {
+            Navigation.NavigateTo($"{baseRoute}/{LayoutState.CurrentWorkspaceId}");
+        }
+    }
+}
+
+<style>
+    .ws-settings-sidebar {
+        width: 240px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-right: 20px;
+        border-right: 1px solid #eee;
+    }
+
+    .side-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .side-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        background: transparent;
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 12px;
+        text-align: left;
+        width: 100%;
+        color: #666;
+        transition: 0.2s;
+    }
+
+    .side-item.active {
+        background: #1a1a1a;
+        color: white;
+        font-weight: 600;
+    }
+
+    .side-item:hover:not(.active) {
+        background: #f0f0f0;
+        color: #000;
+    }
+
+    .side-item .icon {
+        font-size: 1.2rem;
+        width: 24px;
+        text-align: center;
+    }
+</style>

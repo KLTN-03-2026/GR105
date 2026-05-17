@@ -26,7 +26,7 @@ namespace backend.Application.Services
             _redisDb = redis.GetDatabase();
         }
 
-        private string GetRedisKey(Guid userId) => $"user:{userId}:owned_workspaces";
+        private string GetRedisKey(Guid userId) => $"user:{userId}:all_workspaces";
         private string GetMembersRedisKey(Guid workspaceId) => $"workspace:{workspaceId}:members";
 
         public async Task<WorkspaceResponse> CreateWorkspaceAsync(CreateWorkspaceRequest request, Guid ownerUserId)
@@ -37,6 +37,7 @@ namespace backend.Application.Services
             }
 
             var workspace = await _workspaceRepository.CreateAsync(request.Name.Trim(), ownerUserId);
+            var owner = await _userRepository.GetByIdAsync(ownerUserId);
 
             await _activityLogRepository.LogActivityAsync(ownerUserId, workspace.Id, "CREATE_WORKSPACE", "workspace", workspace.Id);
             await _redisDb.KeyDeleteAsync(GetRedisKey(ownerUserId));
@@ -46,13 +47,30 @@ namespace backend.Application.Services
                 Id = workspace.Id,
                 Name = workspace.Name,
                 OwnerUserId = workspace.OwnerUserId,
+                OwnerName = owner?.Username ?? "Unknown",
                 CreatedAt = workspace.CreatedAt
             };
         }
 
         public async Task<IEnumerable<WorkspaceResponse>> GetOwnedWorkspacesAsync(Guid ownerUserId)
         {
-            var cacheKey = GetRedisKey(ownerUserId);
+            var workspaces = await _workspaceRepository.GetOwnedAsync(ownerUserId);
+            var owner = await _userRepository.GetByIdAsync(ownerUserId);
+            var ownerName = owner?.Username ?? "Unknown";
+
+            return workspaces.Select(w => new WorkspaceResponse
+            {
+                Id = w.Id,
+                Name = w.Name,
+                OwnerUserId = w.OwnerUserId,
+                OwnerName = ownerName,
+                CreatedAt = w.CreatedAt
+            }).ToList();
+        }
+
+        public async Task<IEnumerable<WorkspaceResponse>> GetWorkspacesForUserAsync(Guid userId)
+        {
+            var cacheKey = GetRedisKey(userId);
             var cachedData = await _redisDb.StringGetAsync(cacheKey);
 
             if (cachedData.HasValue)
@@ -60,14 +78,21 @@ namespace backend.Application.Services
                 return JsonSerializer.Deserialize<IEnumerable<WorkspaceResponse>>(cachedData.ToString()!) ?? new List<WorkspaceResponse>();
             }
 
-            var workspaces = await _workspaceRepository.GetOwnedAsync(ownerUserId);
-            var response = workspaces.Select(w => new WorkspaceResponse
+            var workspaces = await _workspaceRepository.GetAllForUserAsync(userId);
+            
+            var response = new List<WorkspaceResponse>();
+            foreach (var w in workspaces)
             {
-                Id = w.Id,
-                Name = w.Name,
-                OwnerUserId = w.OwnerUserId,
-                CreatedAt = w.CreatedAt
-            }).ToList();
+                var owner = await _userRepository.GetByIdAsync(w.OwnerUserId);
+                response.Add(new WorkspaceResponse
+                {
+                    Id = w.Id,
+                    Name = w.Name,
+                    OwnerUserId = w.OwnerUserId,
+                    OwnerName = owner?.Username ?? "Unknown",
+                    CreatedAt = w.CreatedAt
+                });
+            }
 
             await _redisDb.StringSetAsync(cacheKey, JsonSerializer.Serialize(response), TimeSpan.FromMinutes(5));
 
@@ -133,6 +158,7 @@ namespace backend.Application.Services
             {
                 await _activityLogRepository.LogActivityAsync(requesterUserId, workspaceId, "ADD_MEMBER", "user", userToAdd.Id);
                 await _redisDb.KeyDeleteAsync(GetMembersRedisKey(workspaceId));
+                await _redisDb.KeyDeleteAsync(GetRedisKey(userToAdd.Id)); // Invalidate user's list
             }
 
             return added;
@@ -168,6 +194,7 @@ namespace backend.Application.Services
             {
                 await _activityLogRepository.LogActivityAsync(requesterUserId, workspaceId, "REMOVE_MEMBER", "user", userIdToRemove);
                 await _redisDb.KeyDeleteAsync(GetMembersRedisKey(workspaceId));
+                await _redisDb.KeyDeleteAsync(GetRedisKey(userIdToRemove)); // Invalidate user's list
             }
 
             return removed;
@@ -216,6 +243,7 @@ namespace backend.Application.Services
             {
                 await _activityLogRepository.LogActivityAsync(userId, ws.Id, "JOIN_WORKSPACE", "workspace", ws.Id);
                 await _redisDb.KeyDeleteAsync(GetMembersRedisKey(ws.Id));
+                await _redisDb.KeyDeleteAsync(GetRedisKey(userId)); // Invalidate user's list
             }
             return added;
         }
@@ -264,6 +292,7 @@ namespace backend.Application.Services
                 {
                     await _activityLogRepository.LogActivityAsync(userId, invitation.WorkspaceId, "JOIN_WORKSPACE", "workspace", invitation.WorkspaceId);
                     await _redisDb.KeyDeleteAsync(GetMembersRedisKey(invitation.WorkspaceId));
+                    await _redisDb.KeyDeleteAsync(GetRedisKey(userId)); // Invalidate user's list
                 }
             }
 
@@ -289,6 +318,7 @@ namespace backend.Application.Services
             {
                 await _activityLogRepository.LogActivityAsync(userId, workspaceId, "LEAVE_WORKSPACE", "workspace", workspaceId);
                 await _redisDb.KeyDeleteAsync(GetMembersRedisKey(workspaceId));
+                await _redisDb.KeyDeleteAsync(GetRedisKey(userId)); // Invalidate user's list
             }
             return removed;
         }

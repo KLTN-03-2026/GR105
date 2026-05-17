@@ -1,0 +1,245 @@
+@page "/profile/edit"
+@using frontend.Client.Features.User.Services
+@using frontend.Client.Features.User.Models
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Shared.Components.Forms
+@using frontend.Client.Core.State
+@inject UserService UserService
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout SettingsLayout
+@rendermode InteractiveAuto
+
+<div class="main-header">
+    <div>
+        <h1 class="page-title">Edit Profile</h1>
+        <p class="page-subtitle">Manage your public profile information</p>
+    </div>
+    <AppButton Class="px-4" OnClick='() => Navigation.NavigateTo("/home")'>Back to Dashboard</AppButton>
+</div>
+
+<div class="settings-grid">
+    <!-- FORM -->
+    <section class="settings-card">
+        @if (_profile == null)
+        {
+            <p>Loading profile...</p>
+        }
+        else
+        {
+            <EditForm Model="@_updateRequest" OnValidSubmit="HandleUpdate" FormName="profileEditForm">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <AppInput @bind-Value="_profile.Username" Label="Name" disabled />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label text-dark fw-bold">Bio</label>
+                    <textarea class="custom-textarea" placeholder="Tell us about yourself..." @bind="_updateRequest.Bio"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label text-dark fw-bold">Role</label>
+                    <div class="select-wrapper">
+                        <select class="custom-input" @bind="_updateRequest.Role">
+                            <option value="">Select your role</option>
+                            <option>Developer</option>
+                            <option>UI/UX Designer</option>
+                            <option>Quality Control</option>
+                            <option>Project Manager</option>
+                        </select>
+                        <span class="select-arrow">▽</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <AppInput @bind-Value="_updateRequest.Team" Label="Team" placeholder="Your team name" />
+                </div>
+
+                <div class="form-group">
+                    <AppInput @bind-Value="_updateRequest.Division" Label="Division" placeholder="Your division" />
+                </div>
+
+                <AppButton Type="submit" Class="px-5" IsLoading="@_isSubmitting">
+                    Update Profile
+                </AppButton>
+
+                @if (!string.IsNullOrEmpty(_message))
+                {
+                    <p style="margin-top: 10px; color: green; font-weight: 600;">@_message</p>
+                }
+            </EditForm>
+        }
+    </section>
+
+    <!-- PROFILE CARD -->
+    <aside class="profile-preview">
+        <div class="preview-card">
+            <div class="preview-avatar">👤</div>
+            <h2 class="preview-name">@(_profile?.Username ?? "User")</h2>
+            <p class="preview-role">@_updateRequest.Role</p>
+        </div>
+    </aside>
+</div>
+
+@code {
+    private UserProfileResponse? _profile;
+    private UpdateProfileRequest _updateRequest = new();
+    private bool _isSubmitting;
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutState.SetPageMetadata("Profile", "profile");
+
+        _profile = await UserService.GetProfileAsync();
+        if (_profile != null)
+        {
+            _updateRequest.Bio = _profile.Bio;
+            _updateRequest.Role = _profile.Role;
+            _updateRequest.Team = _profile.Team;
+            _updateRequest.Division = _profile.Division;
+        }
+    }
+
+    private async Task HandleUpdate()
+    {
+        _isSubmitting = true;
+        _message = null;
+
+        var success = await UserService.UpdateProfileAsync(_updateRequest);
+        if (success)
+        {
+            _message = "Profile updated successfully!";
+        }
+        else
+        {
+            _message = "Failed to update profile.";
+        }
+
+        _isSubmitting = false;
+    }
+}
+
+<style>
+    /* PAGE SPECIFIC STYLES ONLY */
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1.5px solid #000;
+        padding-left: 40px;
+        padding-right: 40px;
+        padding-top: 40px;
+    }
+
+    .page-title {
+        font-size: 42px;
+        font-weight: 900;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: #777;
+        margin-top: 10px;
+    }
+
+    .back-btn {
+        background: black;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 40px;
+        padding: 0 40px 40px;
+    }
+
+    .settings-card,
+    .preview-card {
+        background: white;
+        border-radius: 22px;
+        padding: 30px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        border: 1px solid #eee;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .custom-input,
+    .custom-textarea {
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .custom-textarea {
+        height: 140px;
+        resize: none;
+    }
+
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .save-btn {
+        background: black;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 24px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    .preview-card {
+        text-align: center;
+    }
+
+    .preview-avatar {
+        width: 130px;
+        height: 130px;
+        background: #f3f3f3;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+    }
+
+    .preview-name {
+        margin-bottom: 10px;
+        font-size: 1.5rem;
+    }
+
+    .preview-role {
+        color: #777;
+    }
+</style>

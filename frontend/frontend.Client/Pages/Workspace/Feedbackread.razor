@@ -1,0 +1,420 @@
+@page "/workspace/feedback/{WorkspaceId:guid}/read/{FeedbackId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="feedback-read-container">
+    <main class="read-content-area">
+        @* --- HEADER NỘI DUNG --- *@
+        <div class="read-header">
+            <div class="header-left-title">
+                <div class="feedback-subject-box">
+                    <input type="text" class="subject-input" @bind="feedbackSubject" />
+                </div>
+            </div>
+
+            <div class="header-right-actions">
+                <button class="ws-btn-secondary" @onclick="CancelSubjectEdit">Cancel</button>
+                <button class="ws-btn-dark" @onclick="SaveSubjectEdit">Save</button>
+            </div>
+        </div>
+
+        <div class="read-main-grid">
+            @* --- DANH SÁCH FEEDBACK THREAD --- *@
+            <section class="feedback-thread">
+                @foreach (var item in feedbackItems)
+                {
+                    <div class="thread-item">
+                        <div class="thread-avatar-col">
+                            <div class="user-avatar-circle">👤</div>
+                            @if (item != feedbackItems.Last())
+                            {
+                                <div class="thread-vertical-line"></div>
+                            }
+                        </div>
+                        <div class="thread-content-col">
+                            <div class="feedback-bubble-card">
+                                <div class="bubble-header">
+                                    <span class="bubble-user">@item.Username</span>
+                                    <span class="bubble-time">opened @item.DaysAgo days ago</span>
+                                </div>
+                                <div class="bubble-body">
+                                    @if (item.IsEditing)
+                                    {
+                                        <textarea @bind="item.Description" class="bubble-textarea"></textarea>
+                                        <div class="bubble-footer-actions">
+                                            <button class="ws-btn-secondary small" @onclick="() => CancelEdit(item)">Cancel</button>
+                                            <button class="ws-btn-dark small" @onclick="() => SaveEdit(item)">Save</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="bubble-text">@item.Description</p>
+                                        <button class="bubble-edit-btn" @onclick="() => item.IsEditing = true">Edit</button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* --- THÊM BÌNH LUẬN --- *@
+                <div class="thread-item">
+                    <div class="thread-avatar-col"><div class="user-avatar-circle">👤</div></div>
+                    <div class="thread-content-col">
+                        <label class="comment-input-label">Add a comment</label>
+                        <div class="feedback-bubble-card no-header">
+                            <div class="bubble-body">
+                                <textarea placeholder="Description" @bind="newComment" class="bubble-textarea"></textarea>
+                                <button class="ws-btn-dark self-end">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            @* --- SIDEBAR THÔNG TIN --- *@
+            <aside class="feedback-meta-sidebar">
+                <div class="sidebar-dark-panel">
+                    <div class="meta-section">
+                        <label>Author</label>
+                        <div class="meta-value">Username</div>
+                    </div>
+                    <hr class="meta-divider" />
+                    <div class="meta-section">
+                        <label>Notification</label>
+                        <div class="meta-toggle" @onclick="() => notiOn = !notiOn">
+                            <div class="toggle-bg">
+                                <div class="toggle-knob @(notiOn ? "is-on" : "")">@(notiOn ? "On" : "")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="meta-divider" />
+                    <div class="meta-section">
+                        <label>Feedback Status</label>
+                        <div class="meta-toggle" @onclick="() => statusOn = !statusOn">
+                            <div class="toggle-bg">
+                                <div class="toggle-knob @(statusOn ? "is-on" : "")">@(statusOn ? "On" : "")</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="meta-divider" />
+                    <button class="sidebar-delete-btn">Delete</button>
+                </div>
+            </aside>
+        </div>
+    </main>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    [Parameter] public Guid FeedbackId { get; set; }
+
+    private string feedbackSubject = "FEEDBACK SUBJECT";
+    private string backupSubject = "FEEDBACK SUBJECT";
+    private string newComment = "";
+    private bool notiOn = true;
+    private bool statusOn = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+        LayoutState.SetWorkspaceMetadata("Read Feedback", "feedback", WorkspaceId, isOwner);
+    }
+
+    private void SaveSubjectEdit() => backupSubject = feedbackSubject;
+    private void CancelSubjectEdit() => feedbackSubject = backupSubject;
+
+    public class FeedbackItem
+    {
+        public string Username { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int DaysAgo { get; set; }
+        public bool IsEditing { get; set; }
+    }
+
+    private List<FeedbackItem> feedbackItems = new() {
+        new FeedbackItem { Username = "Username", Description = "Description content 1", DaysAgo = 5 },
+        new FeedbackItem { Username = "Username", Description = "Description content 2", DaysAgo = 2 }
+    };
+
+    private void SaveEdit(FeedbackItem item) => item.IsEditing = false;
+    private void CancelEdit(FeedbackItem item) => item.IsEditing = false;
+}
+
+<style>
+    .feedback-read-container {
+        background: #f8f9fa;
+        min-height: calc(100vh - 120px);
+    }
+
+    .read-content-area {
+        padding: 40px 60px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .read-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        gap: 20px;
+    }
+
+    .feedback-subject-box {
+        border: 2px solid #000;
+        border-radius: 14px;
+        padding: 10px 20px;
+        background: white;
+        min-width: 500px;
+        box-shadow: 4px 4px 0 rgba(0,0,0,0.05);
+    }
+
+    .subject-input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 2.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        background: transparent;
+    }
+
+    .header-right-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .ws-btn-dark {
+        background: #111;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .ws-btn-secondary {
+        background: #eee;
+        color: #444;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .read-main-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 50px;
+        margin-top: 40px;
+    }
+
+    /* Thread Styles */
+    .thread-item {
+        display: flex;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .thread-avatar-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 50px;
+    }
+
+    .user-avatar-circle {
+        width: 50px;
+        height: 50px;
+        background: #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 2px solid #ddd;
+    }
+
+    .thread-vertical-line {
+        width: 2px;
+        background: #ddd;
+        flex-grow: 1;
+        margin-top: 15px;
+    }
+
+    .thread-content-col {
+        flex: 1;
+    }
+
+    .feedback-bubble-card {
+        background: white;
+        border: 2px solid #000;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
+
+    .bubble-header {
+        background: #1a1a1a;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+    .bubble-user {
+        font-weight: 700;
+    }
+
+    .bubble-time {
+        opacity: 0.7;
+    }
+
+    .bubble-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bubble-text {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #222;
+        margin-bottom: 15px;
+    }
+
+    .bubble-edit-btn {
+        align-self: flex-end;
+        background: #f0f0f0;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .bubble-textarea {
+        width: 100%;
+        min-height: 120px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        font-family: inherit;
+        resize: none;
+    }
+
+    .bubble-footer-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .self-end {
+        align-self: flex-end;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-dark-panel {
+        background: #1a1a1a;
+        color: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .meta-section {
+        margin-bottom: 25px;
+    }
+
+    .meta-section label {
+        display: block;
+        color: #888;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+
+    .meta-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .meta-divider {
+        border: none;
+        border-top: 1px solid #333;
+        margin-bottom: 25px;
+    }
+
+    .meta-toggle {
+        cursor: pointer;
+    }
+
+    .toggle-bg {
+        width: 80px;
+        height: 34px;
+        background: #333;
+        border-radius: 20px;
+        padding: 4px;
+        position: relative;
+    }
+
+    .toggle-knob {
+        width: 45px;
+        height: 26px;
+        background: white;
+        color: black;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.75rem;
+        transition: 0.3s;
+    }
+
+    .toggle-knob.is-on {
+        transform: translateX(27px);
+    }
+
+    .sidebar-delete-btn {
+        width: 100%;
+        background: transparent;
+        border: 1px solid #444;
+        color: #ff4d4d;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .sidebar-delete-btn:hover {
+        background: rgba(255, 77, 77, 0.1);
+        border-color: #ff4d4d;
+    }
+
+    .comment-input-label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #444;
+    }
+</style>

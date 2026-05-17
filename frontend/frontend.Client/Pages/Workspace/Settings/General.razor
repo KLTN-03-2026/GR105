@@ -1,0 +1,96 @@
+@page "/workspace/settings/general/{WorkspaceId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceSettingsLayout
+@rendermode InteractiveAuto
+
+<div class="settings-content-inner">
+    <h2 class="content-title">General Settings</h2>
+    <p class="content-subtitle">Manage workspace identity and core features</p>
+    <hr class="divider" />
+
+    <section class="settings-section">
+        <label class="section-label">Workspace Name</label>
+        <div class="input-row">
+            <input type="text" class="ws-input" @bind="workspaceName" placeholder="Enter workspace name" />
+            <button class="btn-black">Rename</button>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <h3 class="section-label">Feature Management</h3>
+        <div class="feature-card-list">
+            <div class="feature-item">
+                <input type="checkbox" id="fb" checked />
+                <div class="feature-text">
+                    <label for="fb">Feedback System</label>
+                    <p>Enable the dedicated feedback tab for this workspace</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <input type="checkbox" id="cm" checked />
+                <div class="feature-text">
+                    <label for="cm">Document Comments</label>
+                    <p>Allow users to leave comments on shared documents</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <input type="checkbox" id="av" />
+                <div class="feature-text">
+                    <label for="av">Auto Versioning</label>
+                    <p>Automatically create a new version on every save</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="danger-zone">
+        <h3 class="danger-title">Danger Zone</h3>
+        <button class="btn-outline-red">Delete this workspace</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    private string? workspaceName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+        
+        workspaceName = workspace?.Name;
+
+        LayoutState.SetWorkspaceMetadata("General Settings", "settings", WorkspaceId, isOwner);
+        LayoutState.SetPageMetadata("General Settings", "general");
+    }
+}
+
+<style>
+    .content-title { font-size: 2rem; font-weight: 800; margin: 0; }
+    .content-subtitle { color: #777; margin-top: 8px; }
+    .divider { border: none; border-top: 2px solid #000; margin: 25px 0 40px; }
+
+    .settings-section { margin-bottom: 45px; }
+    .section-label { display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
+
+    .input-row { display: flex; gap: 15px; }
+    .ws-input { flex: 1; max-width: 400px; padding: 12px 18px; border: 2px solid #000; border-radius: 10px; font-size: 1rem; }
+    .btn-black { background: #000; color: #fff; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+
+    .feature-card-list { display: flex; flex-direction: column; gap: 20px; }
+    .feature-item { display: flex; gap: 15px; align-items: flex-start; padding: 20px; border: 1px solid #eee; border-radius: 16px; }
+    .feature-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: #000; margin-top: 2px; }
+    .feature-text label { font-weight: 800; font-size: 1rem; display: block; margin-bottom: 4px; }
+    .feature-text p { color: #666; font-size: 0.9rem; margin: 0; }
+
+    .danger-zone { margin-top: 60px; padding-top: 30px; border-top: 1px solid #eee; }
+    .danger-title { color: #dc3545; font-weight: 800; margin-bottom: 20px; }
+    .btn-outline-red { background: transparent; color: #dc3545; border: 2px solid #dc3545; padding: 12px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+</style>

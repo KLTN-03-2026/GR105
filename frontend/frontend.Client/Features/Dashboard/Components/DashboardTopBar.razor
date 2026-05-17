@@ -1,0 +1,64 @@
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Auth.Services
+@inject AuthState AuthState
+@inject AuthService AuthService
+
+<div class="w-full flex items-center justify-between">
+    <!-- Left: Welcome (Optional) or just empty as layout handles brand -->
+    <div class="flex items-center gap-4">
+        <h1 class="text-lg font-semibold text-gray-800">Dashboard</h1>
+    </div>
+
+    <!-- Center: Search Bar -->
+    <div class="flex-1 max-w-md mx-8">
+        <div class="relative">
+            <input type="text" 
+                   class="w-full bg-gray-100 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all" 
+                   placeholder="Search for documents, workspaces...">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Actions & Profile -->
+    <div class="flex items-center gap-4">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+            Join
+        </button>
+        
+        <button class="text-gray-500 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+        </button>
+
+        <div class="relative group">
+            <button class="flex items-center gap-2 focus:outline-none">
+                <div class="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 font-bold text-xs">
+                    @(AuthState.User?.Username?.ToUpper().FirstOrDefault() ?? 'U')
+                </div>
+            </button>
+            
+            <!-- Simple Dropdown (Hidden by default, show on hover/click) -->
+            <div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 hidden group-hover:block z-50">
+                <div class="px-4 py-2 border-b border-gray-100">
+                    <p class="text-xs text-gray-500">Signed in as</p>
+                    <p class="text-sm font-semibold truncate">@AuthState.User?.Username</p>
+                </div>
+                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Your Profile</a>
+                <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Settings</a>
+                <button @onclick="Logout" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-50">Sign out</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+    }
+}

@@ -1,0 +1,315 @@
+@page "/workspace/versioning/{WorkspaceId:guid}/{FileId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "user")]
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject FileService FileService
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="workspace-page-content">
+    <!-- ACTION BAR -->
+    <section class="ws-action-bar">
+        <div class="ws-breadcrumb">
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo("/workspace")'>Workspaces</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo($"/workspace/files/{WorkspaceId}")'>Documents</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-current">Versioning</span>
+        </div>
+        <div class="ws-actions">
+            <button class="ws-btn-primary">New version</button>
+        </div>
+    </section>
+
+    <!-- CONTENT AREA -->
+    <div class="ws-version-container">
+        <div class="ws-version-controls">
+            <div class="ws-toggle-group">
+                <button class="ws-toggle-btn active">Version</button>
+                <button class="ws-toggle-btn">Tags</button>
+            </div>
+            <div class="ws-search-wrapper">
+                <input type="text" placeholder="Search versions..." />
+                <button class="ws-search-icon">🔍</button>
+            </div>
+        </div>
+
+        <div class="ws-version-list">
+            @if (versions == null)
+            {
+                <div class="ws-loading">Loading versions...</div>
+            }
+            else if (!versions.Any())
+            {
+                <div class="ws-empty">No versions found for this file.</div>
+            }
+            else
+            {
+                @foreach (var v in versions)
+                {
+                    <div class="ws-version-row">
+                        <div class="ws-version-meta">
+                            <div class="ws-meta-item">👤 @v.CreatedBy</div>
+                            <div class="ws-meta-item">🏷️ Tags</div>
+                            <div class="ws-meta-date">@v.CreatedAt.ToShortDateString()</div>
+                        </div>
+
+                        <div class="ws-version-card">
+                            <div class="ws-card-header">
+                                <div class="ws-header-info">
+                                    <h3>Version @v.VersionNumber</h3>
+                                    <p>Size: @(v.FileSize / 1024) KB</p>
+                                </div>
+                                <div class="ws-header-actions">
+                                    <button class="ws-card-btn">✏️</button>
+                                    <button class="ws-card-btn">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="ws-card-body">
+                                <div class="ws-checksum">
+                                    <span class="ws-checksum-label">Checksum:</span>
+                                    <code class="ws-checksum-value">@v.Checksum</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    [Parameter] public Guid FileId { get; set; }
+    private List<VersionResponse>? versions;
+    private WorkspaceResponse? workspace;
+
+    protected override async Task OnInitializedAsync()
+    {
+        workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+
+        LayoutState.SetWorkspaceMetadata("Versioning", "versioning", WorkspaceId, isOwner);
+
+        if (FileId != Guid.Empty)
+        {
+            versions = await FileService.GetFileVersionsAsync(FileId);
+        }
+    }
+}
+
+<style>
+    .workspace-page-content {
+        background: #f8f9fa;
+        min-height: calc(100vh - 120px);
+    }
+
+    /* Standardized Action Bar */
+    .ws-action-bar {
+        padding: 25px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-bottom: 1px solid #eee;
+    }
+
+    .ws-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+    }
+
+    .crumb-link {
+        color: #888;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .crumb-sep {
+        color: #ddd;
+    }
+
+    .crumb-current {
+        font-weight: 700;
+        color: #111;
+    }
+
+    .ws-btn-primary {
+        background: black;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* Version Content */
+    .ws-version-container {
+        padding: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .ws-version-controls {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .ws-toggle-group {
+        border: 1.5px solid #000;
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+    }
+
+    .ws-toggle-btn {
+        padding: 10px 25px;
+        border: none;
+        background: white;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .ws-toggle-btn.active {
+        background: #1a1a1a;
+        color: white;
+    }
+
+    .ws-search-wrapper {
+        display: flex;
+        flex: 1;
+        border: 1.5px solid #000;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+        max-width: 400px;
+    }
+
+    .ws-search-wrapper input {
+        flex: 1;
+        padding: 10px 15px;
+        border: none;
+        outline: none;
+    }
+
+    .ws-search-icon {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 0 15px;
+        cursor: pointer;
+    }
+
+    /* Version List */
+    .ws-version-row {
+        display: flex;
+        gap: 40px;
+        margin-bottom: 35px;
+        align-items: flex-start;
+    }
+
+    .ws-version-meta {
+        width: 180px;
+        padding-top: 20px;
+        color: #444;
+        font-weight: 500;
+    }
+
+    .ws-meta-item {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ws-meta-date {
+        margin-top: 20px;
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .ws-version-card {
+        flex: 1;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    .ws-card-header {
+        background: #1a1a1a;
+        color: white;
+        padding: 25px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ws-header-info h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .ws-header-info p {
+        margin: 6px 0 0;
+        opacity: 0.7;
+        font-size: 0.9rem;
+    }
+
+    .ws-card-btn {
+        background: rgba(255,255,255,0.1);
+        border: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        margin-left: 10px;
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .ws-card-btn:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .ws-card-body {
+        padding: 30px 35px;
+    }
+
+    .ws-checksum-label {
+        font-weight: 700;
+        margin-right: 10px;
+        color: #111;
+    }
+
+    .ws-checksum-value {
+        background: #f4f4f4;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .ws-loading, .ws-empty {
+        padding: 100px;
+        text-align: center;
+        color: #666;
+    }
+</style>

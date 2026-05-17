@@ -57,5 +57,31 @@ namespace backend.Infrastructure.Repositories
 
             return await connection.QueryAsync<ActivityLogResponseDto>(sql, new { WorkspaceId = workspaceId, Limit = limit, Offset = offset });
         }
+
+        public async Task<IEnumerable<ActivityLogResponseDto>> GetUserLogsAsync(Guid userId, int limit = 50, int offset = 0)
+        {
+            using var connection = _dbConnectionFactory.Create();
+            var sql = @"
+                SELECT 
+                    l.id as ""Id"",
+                    l.action as ""Action"",
+                    l.entity_type as ""EntityType"",
+                    l.entity_id as ""EntityId"",
+                    l.entity_name as ""EntityName"",
+                    l.created_at as ""CreatedAt"",
+                    u.id as ""UserId"",
+                    u.username as ""Username"",
+                    u.email as ""Email"",
+                    w.name as ""WorkspaceName""
+                FROM activity_logs l
+                LEFT JOIN users u ON l.user_id = u.id
+                JOIN workspaces w ON l.workspace_id = w.id
+                JOIN workspace_users wu ON l.workspace_id = wu.workspace_id
+                WHERE wu.user_id = @UserId
+                ORDER BY l.created_at DESC
+                LIMIT @Limit OFFSET @Offset;";
+
+            return await connection.QueryAsync<ActivityLogResponseDto>(sql, new { UserId = userId, Limit = limit, Offset = offset });
+        }
     }
 }

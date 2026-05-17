@@ -8,6 +8,7 @@ namespace backend.Application.Interfaces
         Task<Workspace> CreateAsync(string name, Guid ownerUserId);
         Task<Workspace?> GetByIdAsync(Guid id);
         Task<IEnumerable<Workspace>> GetOwnedAsync(Guid ownerUserId);
+        Task<IEnumerable<Workspace>> GetAllForUserAsync(Guid userId);
         Task<bool> UpdateAsync(Guid id, string newName);
         Task<bool> DeleteAsync(Guid id);
 

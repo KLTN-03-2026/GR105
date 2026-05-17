@@ -1,0 +1,229 @@
+@page "/workspace"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "user")]
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Auth.Services
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Shared.Components.Forms
+@inject AuthState AuthState
+@inject AuthService AuthService
+@inject WorkspaceService WorkspaceService
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout StandardLayout
+@rendermode InteractiveAuto
+
+<div class="main-content-inner">
+    <div class="content-header-row">
+        <h2 class="section-title">My workspaces</h2>
+        <AppButton OnClick="HandleCreateWorkspace">📁 New workspace</AppButton>
+    </div>
+
+    <div class="workspace-search-container">
+        <div class="inner-search">
+            <input @bind="_searchQuery" @bind:event="oninput" placeholder="Search workspace..." class="flex-1 border-0 outline-none px-2" />
+            <span class="clear-icon" @onclick="() => _searchQuery = string.Empty">✖</span>
+            <AppButton Class="bg-transparent border-0 text-dark">🔍</AppButton>
+        </div>
+    </div>
+
+    <div class="workspace-ribbon-list">
+        @if (workspaces == null)
+        {
+            <p>Loading workspaces...</p>
+        }
+        else if (!workspaces.Any())
+        {
+            <p>You don't have any workspaces yet. Create one to get started!</p>
+        }
+        else
+        {
+            @foreach (var ws in workspaces)
+            {
+                <div class="ribbon-item">
+                    <div class="pillar left-pillar"></div>
+                    <div class="ribbon-body" style="cursor: pointer;" @onclick='() => Navigation.NavigateTo($"/workspace/files/{ws.Id}")'>
+                        <div class="ribbon-header">
+                            <span class="ws-name">@ws.OwnerName/@ws.Name</span>
+                            <span class="ws-icon-settings">⚙️</span>
+                        </div>
+                        <p class="ws-desc">Workspace created on @ws.CreatedAt.ToShortDateString()</p>
+                        <span class="ws-update">Owner: @ws.OwnerName</span>
+                    </div>
+                    <div class="pillar right-pillar"></div>
+                </div>
+            }
+        }
+
+        @* Placeholder for empty slots *@
+        <div class="ribbon-item">
+            <div class="pillar left-pillar"></div>
+            <div class="ribbon-body empty"></div>
+            <div class="pillar right-pillar"></div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<WorkspaceResponse>? workspaces;
+    private string _searchQuery = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutState.SetPageMetadata("My Workspaces", "workspaces");
+
+        await AuthState.InitializeAsync();
+        if (!AuthState.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        workspaces = await WorkspaceService.GetOwnedWorkspacesAsync();
+    }
+
+    private void HandleCreateWorkspace()
+    {
+        Navigation.NavigateTo("/workspace/create");
+    }
+}
+
+<style>
+    .main-content-inner {
+        padding: 40px 60px;
+    }
+
+    .content-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #000;
+    }
+
+    .btn-new-workspace {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .workspace-search-container {
+        margin-bottom: 40px;
+    }
+
+    .inner-search {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #000;
+        border-radius: 8px;
+        padding: 5px 10px;
+        max-width: 100%;
+    }
+
+    .inner-search input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 8px;
+        font-size: 1rem;
+    }
+
+    .clear-icon {
+        cursor: pointer;
+        padding: 0 10px;
+        font-weight: bold;
+    }
+
+    .btn-search-inner {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        border-left: 1.5px solid #000;
+        padding-left: 10px;
+    }
+
+    /* WORKSPACE RIBBON */
+    .workspace-ribbon-list {
+        display: flex;
+        flex-direction: column;
+        gap: 35px;
+    }
+
+    .ribbon-item {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 120px;
+    }
+
+    .pillar {
+        width: 18px;
+        height: 100%;
+        background-color: #555;
+        border: 2px solid #000;
+        border-radius: 5px;
+        z-index: 2;
+    }
+
+    .ribbon-body {
+        flex: 1;
+        height: 85%;
+        background: white;
+        border-top: 2px solid #000;
+        border-bottom: 2px solid #000;
+        margin: 0 -5px;
+        z-index: 1;
+        padding: 15px 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+    }
+
+    .ribbon-body.empty {
+        background: #fafafa;
+    }
+
+    .ribbon-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .ws-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #000;
+    }
+
+    .ws-icon-settings {
+        cursor: pointer;
+    }
+
+    .ws-desc {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .ws-update {
+        position: absolute;
+        bottom: 15px;
+        right: 30px;
+        font-size: 0.85rem;
+        color: #888;
+    }
+</style>

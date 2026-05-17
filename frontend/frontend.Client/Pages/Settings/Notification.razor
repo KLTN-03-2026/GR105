@@ -1,0 +1,163 @@
+@page "/settings/notifications"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout SettingsLayout
+@rendermode InteractiveAuto
+
+<div class="page-header">
+    <h1 class="page-title big-bold">Notification</h1>
+    <button class="btn-personal-profile">Personal profile</button>
+</div>
+
+<div class="settings-body">
+    <section class="settings-section">
+        <label class="section-label">Default notification email</label>
+        <select class="email-select">
+            <option>user@mail.com</option>
+        </select>
+    </section>
+
+    <section class="settings-section">
+        <label class="section-label">Notify me</label>
+
+        <div class="table-container">
+            <table class="notify-table">
+                <thead>
+                    <tr>
+                        <th class="col-situation">Situation</th>
+                        <th class="col-product border-left">&lt;Product Name&gt;</th>
+                        <th class="col-email border-left">Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Notification for all workspaces, teams that you're currently participating</td>
+                        <td class="text-center border-left"><input type="checkbox" checked /></td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>Notification for events or @@mention</td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>Notification for workspace, feedback changes</td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>Alert when something happens to workspaces</td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                        <td class="text-center border-left"><input type="checkbox" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.SetPageMetadata("Notification", "notifications");
+    }
+}
+
+<style>
+    /* PAGE SPECIFIC STYLES ONLY */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1.5px solid black;
+        padding: 40px 60px 15px;
+        margin-bottom: 30px;
+    }
+
+    .page-title.big-bold {
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: #000;
+        letter-spacing: -1px;
+        margin: 0;
+    }
+
+    .btn-personal-profile {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .settings-body {
+        padding: 0 60px 60px;
+    }
+
+    .section-label {
+        display: block;
+        font-weight: 800;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+        color: #000;
+    }
+
+    .email-select {
+        width: 320px;
+        padding: 12px;
+        border: 1.5px solid #000;
+        border-radius: 8px;
+        margin-bottom: 40px;
+        font-weight: 500;
+    }
+
+    .table-container {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .notify-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .notify-table th {
+        background: #fdfdfd;
+        padding: 15px;
+        font-weight: 800;
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .notify-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        color: #333;
+        line-height: 1.4;
+    }
+
+    .border-left {
+        border-left: 1px solid #ccc !important;
+    }
+
+    .text-center {
+        text-align: center;
+        width: 150px;
+    }
+
+    .notify-table input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #000;
+    }
+
+    .notify-table tr:hover {
+        background-color: #f9f9f9;
+    }
+</style>

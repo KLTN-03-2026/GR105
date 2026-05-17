@@ -1,0 +1,247 @@
+@page "/maintenance"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout StandardLayout
+@rendermode InteractiveAuto
+
+<div class="maintenance-content-wrapper">
+    <div class="printer-wrapper">
+        <div class="top-paper-feeder">
+            <div class="paper-in">
+                <div class="paper-line"></div>
+                <div class="paper-line"></div>
+                <div class="paper-line"></div>
+            </div>
+        </div>
+
+        <div class="printer-body">
+            <div class="control-panel">
+                <button class="btn-contact">Contact Us</button>
+                <div class="status-dots">
+                    <div class="dot silver"></div>
+                    <div class="dot silver"></div>
+                </div>
+                <button class="btn-dashboard-link" @onclick='() => Navigation.NavigateTo("/home")'>
+                    <span class="arrow">↩</span> Dashboard
+                </button>
+            </div>
+
+            <div class="interaction-area">
+                <div class="led-indicators">
+                    <div class="led red shadow"></div>
+                    <div class="led orange shadow"></div>
+                    <div class="led red shadow"></div>
+                </div>
+
+                <div class="display-screen">
+                    <p class="error-text">
+                        The printer is broken again! Looks like it needs some maintenance, please come back later.
+                    </p>
+                </div>
+            </div>
+
+            <div class="output-tray">
+                <div class="paper-out">
+                    <div class="paper-line-long"></div>
+                    <div class="paper-line-mid"></div>
+                    <div class="paper-line-mid"></div>
+                </div>
+            </div>
+            <div class="deco-x">✖</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.SetPageMetadata("Maintenance", "maintenance");
+    }
+}
+
+<style>
+    :root {
+        --printer-dark: #1a1a1a;
+        --printer-mid: #2b2b2b;
+        --printer-gray: #4a4a4a;
+    }
+
+    .maintenance-content-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        min-height: calc(100vh - 65px);
+        padding-top: 50px;
+        padding-bottom: 120px;
+    }
+
+    .printer-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 700px;
+    }
+
+    .top-paper-feeder {
+        width: 350px;
+        height: 80px;
+        background-color: var(--printer-mid);
+        border-radius: 10px 10px 0 0;
+        z-index: 1;
+    }
+
+    .paper-in {
+        width: 240px;
+        height: 100px;
+        background: white;
+        border: 3px solid #000;
+        margin: 20px auto 0;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .paper-line {
+        height: 3px;
+        background: #eee;
+    }
+
+    .printer-body {
+        width: 100%;
+        height: 400px;
+        background-color: var(--printer-dark);
+        border-radius: 20px;
+        padding: 30px;
+        position: relative;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        border: 4px solid #000;
+        z-index: 2;
+    }
+
+    .control-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40px;
+    }
+
+    .btn-contact, .btn-dashboard-link {
+        background-color: #e0e0e0;
+        border: 2px solid #000;
+        border-radius: 20px;
+        padding: 8px 20px;
+        font-weight: bold;
+        font-size: 14px;
+        text-decoration: none;
+        color: black;
+        cursor: pointer;
+    }
+
+    .status-dots {
+        display: flex;
+        gap: 15px;
+    }
+
+    .dot.silver {
+        width: 25px;
+        height: 25px;
+        background-color: #c0c0c0;
+        border-radius: 50%;
+        border: 2px solid #000;
+    }
+
+    .interaction-area {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    .led-indicators {
+        background-color: #111;
+        padding: 15px 10px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .led {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+    }
+
+    .led.red {
+        background-color: #ff4d4d;
+        box-shadow: 0 0 10px #ff4d4d;
+    }
+
+    .led.orange {
+        background-color: #ff9800;
+        box-shadow: 0 0 10px #ff9800;
+    }
+
+    .display-screen {
+        flex: 1;
+        background-color: #333;
+        border: 8px solid var(--printer-gray);
+        height: 150px;
+        display: flex;
+        align-items: center;
+        padding: 0 40px;
+    }
+
+    .error-text {
+        color: white;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .output-tray {
+        position: absolute;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        background-color: var(--printer-mid);
+        border: 3px solid #000;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    }
+
+    .paper-out {
+        width: 240px;
+        height: 150px;
+        background: white;
+        border: 4px solid #1a1a1a;
+        margin: -10px auto 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .paper-line-long, .paper-line-mid {
+        height: 4px;
+        background-color: #d0d0d0;
+    }
+
+    .paper-line-long { width: 100%; }
+    .paper-line-mid { width: 70%; }
+
+    .deco-x {
+        position: absolute;
+        bottom: -15px;
+        right: 20px;
+        font-size: 100px;
+        color: #000;
+        opacity: 0.8;
+        font-weight: 900;
+        pointer-events: none;
+    }
+</style>

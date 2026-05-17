@@ -1,0 +1,116 @@
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject LayoutStateService LayoutState
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@implements IDisposable
+@rendermode InteractiveAuto
+
+@if (LayoutState.ShowMenu)
+{
+    <div class="drawer-menu">
+        <div class="drawer-header">
+            <i class="user-large-icon">👤</i>
+            <button class="close-drawer" @onclick="LayoutState.ToggleMenu">✕</button>
+        </div>
+        <nav class="drawer-nav">
+            <div class="nav-item @(LayoutState.ActiveSidebarItem == "dashboard" ? "active" : "")" @onclick='() => NavigateTo("/home")'>⌂ Dashboard</div>
+            <div class="nav-item @(LayoutState.ActiveSidebarItem == "feedback" ? "active" : "")" @onclick='() => NavigateTo("/support/feedback")'>✉ Feedback</div>
+            <div class="nav-item @(LayoutState.ActiveSidebarItem == "contact" ? "active" : "")" @onclick='() => NavigateTo("/support/contact")'>📞 Contact Us</div>
+            <div class="nav-divider"></div>
+            <div class="nav-label">Top workspaces</div>
+            <div class="nav-search-wrap">
+                <input type="text" placeholder="Search workspace..." />
+            </div>
+            
+            @if (_isLoading)
+            {
+                <div class="nav-status">Loading workspaces...</div>
+            }
+            else if (_workspaces == null || !_workspaces.Any())
+            {
+                <div class="nav-empty">
+                    <p>No workspaces found.</p>
+                    <button class="btn-create-nav" @onclick='() => NavigateTo("/workspace/create")'>＋ Create New</button>
+                </div>
+            }
+            else
+            {
+                @foreach (var ws in _workspaces.Take(5))
+                {
+                    <div class="nav-item small" @onclick='() => NavigateTo($"/workspace/files/{ws.Id}")'>📁 @ws.Name</div>
+                }
+            }
+        </nav>
+    </div>
+    <div class="overlay" @onclick="LayoutState.ToggleMenu"></div>
+}
+
+@code {
+    private List<WorkspaceResponse>? _workspaces;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutState.OnChange += StateHasChanged;
+        
+        try 
+        {
+            await AuthState.InitializeAsync();
+            if (AuthState.IsAuthenticated)
+            {
+                _workspaces = await WorkspaceService.GetOwnedWorkspacesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[DrawerMenu] Error: {ex.Message}");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+
+    private void NavigateTo(string path)
+    {
+        LayoutState.CloseAllModals();
+        Navigation.NavigateTo(path);
+    }
+}
+
+<style>
+    /* ... existing styles ... */
+    .nav-status, .nav-empty {
+        padding: 10px;
+        color: #666;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .nav-empty p {
+        margin-bottom: 10px;
+    }
+
+    .btn-create-nav {
+        background: #333;
+        color: white;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .btn-create-nav:hover {
+        background: #444;
+    }
+    /* Ensure other styles remain or are updated if needed */
+</style>

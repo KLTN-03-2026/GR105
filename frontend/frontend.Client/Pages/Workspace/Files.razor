@@ -1,0 +1,216 @@
+@page "/workspace/files/{WorkspaceId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "user")]
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Shared.Components.Forms
+@inject FileService FileService
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="workspace-page-content">
+    <!-- ACTION BAR -->
+    <section class="ws-action-bar">
+        <div class="ws-breadcrumb">
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo("/workspace")'>Workspaces</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-current">Documents</span>
+        </div>
+        <div class="ws-actions">
+            <AppButton Class="px-4 py-2">Upload File</AppButton>
+        </div>
+    </section>
+
+    <!-- CONTENT AREA -->
+    <div class="ws-content-grid">
+        @if (files == null)
+        {
+            <div class="ws-loading">
+                <p>Loading documents...</p>
+            </div>
+        }
+        else if (!files.Any())
+        {
+            <div class="ws-empty">
+                <i class="oi oi-folder"></i>
+                <p>No documents found in this workspace.</p>
+                <AppButton Class="px-4 py-2" style="background: white; border: 1.5px solid #000; color: #000;">Upload your first file</AppButton>
+            </div>
+        }
+        else
+        {
+            <div class="ws-file-list">
+                @foreach (var file in files)
+                {
+                    <div class="ws-file-card" @onclick='() => Navigation.NavigateTo($"/workspace/versioning/{WorkspaceId}/{file.Id}")'>
+                        <div class="ws-file-icon">
+                            <i class="oi oi-document"></i>
+                        </div>
+                        <div class="ws-file-info">
+                            <h3 class="ws-file-name">@file.Title</h3>
+                            <p class="ws-file-meta">
+                                Updated @file.UpdatedAt.ToShortDateString() • @(file.FileSize / 1024) KB
+                            </p>
+                        </div>
+                        <div class="ws-file-actions">
+                            <AppButton Class="bg-transparent border-0 text-dark" style="font-size: 1.5rem;" OnClick:stopPropagation="true">⋮</AppButton>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    private List<FileResponse>? files;
+    private WorkspaceResponse? workspace;
+
+    protected override async Task OnInitializedAsync()
+    {
+        workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+        
+        LayoutState.SetWorkspaceMetadata("Documents", "documents", WorkspaceId, isOwner);
+        
+        if (WorkspaceId != Guid.Empty)
+        {
+            files = await FileService.GetFilesByWorkspaceIdAsync(WorkspaceId);
+        }
+    }
+}
+
+<style>
+    .workspace-page-content {
+        background: #f8f9fa;
+        min-height: calc(100vh - 120px);
+    }
+
+    /* Standardized Action Bar */
+    .ws-action-bar {
+        padding: 25px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-bottom: 1px solid #eee;
+    }
+
+    .ws-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+    }
+
+    .crumb-link {
+        color: #888;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .crumb-link:hover {
+        color: black;
+        text-decoration: underline;
+    }
+
+    .crumb-sep {
+        color: #ddd;
+    }
+
+    .crumb-current {
+        font-weight: 700;
+        color: #111;
+    }
+
+    .ws-btn-primary {
+        background: black;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* Content Layout */
+    .ws-content-grid {
+        padding: 40px;
+    }
+
+    .ws-file-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .ws-file-card {
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 20px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .ws-file-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        border-color: #ccc;
+    }
+
+    .ws-file-icon {
+        width: 50px;
+        height: 50px;
+        background: #f0f0f0;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #444;
+    }
+
+    .ws-file-info {
+        flex: 1;
+    }
+
+    .ws-file-name {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #111;
+    }
+
+    .ws-file-meta {
+        margin: 5px 0 0;
+        font-size: 0.85rem;
+        color: #777;
+    }
+
+    .ws-icon-btn {
+        background: none;
+        border: none;
+        color: #aaa;
+        cursor: pointer;
+        font-size: 1.5rem;
+        padding: 5px;
+    }
+
+    .ws-loading, .ws-empty {
+        text-align: center;
+        padding: 120px 0;
+        color: #666;
+    }
+</style>

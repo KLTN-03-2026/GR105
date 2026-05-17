@@ -1,0 +1,85 @@
+@using frontend.Client.Features.Auth.Models
+@using frontend.Client.Features.Auth.Services
+@using frontend.Client.Shared.Components.Forms
+@inject AuthService AuthService
+
+<EditForm Model="@_loginRequest" OnValidSubmit="OnSubmit" FormName="loginForm" class="custom-login-form">
+    <DataAnnotationsValidator />
+
+    <div class="input-spacer">
+        <AppInput @bind-Value="_loginRequest.Email"
+                  ValidationFor="@(() => _loginRequest.Email)"
+                  placeholder="Username" />
+    </div>
+
+    <div class="button-spacer">
+        <AppInput @bind-Value="_loginRequest.Password"
+                  Type="password"
+                  ValidationFor="@(() => _loginRequest.Password)"
+                  placeholder="Password" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger py-2 mb-3" style="border-radius: 10px; font-size: 14px;">
+            @_errorMessage
+        </div>
+    }
+
+    <AppButton Type="submit"
+               Class="login-submit-btn"
+               IsLoading="@_isSubmitting">
+        SIGN IN
+    </AppButton>
+</EditForm>
+
+<style>
+    .login-submit-btn {
+        width: 100%;
+        height: 49px;
+        background-color: #000000;
+        color: #FFFFFF;
+        border-radius: 13.5px;
+        font-weight: 800;
+        font-size: 14px;
+        letter-spacing: 1px;
+        transition: background 0.2s;
+    }
+
+    .login-submit-btn:hover {
+        background-color: #333333;
+    }
+
+    .input-spacer {
+        margin-bottom: 35px;
+    }
+
+    .button-spacer {
+        margin-bottom: 31.5px;
+    }
+
+    .custom-login-form {
+        width: 100%;
+    }
+</style>
+
+@code {
+    private LoginRequest _loginRequest = new();
+    private bool _isSubmitting;
+    private string? _errorMessage;
+
+    private async Task OnSubmit()
+    {
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        var success = await AuthService.LoginAsync(_loginRequest);
+        
+        if (!success)
+        {
+            _errorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác.";
+        }
+
+        _isSubmitting = false;
+    }
+}

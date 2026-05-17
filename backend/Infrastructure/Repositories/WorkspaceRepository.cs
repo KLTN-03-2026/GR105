@@ -94,6 +94,18 @@ namespace backend.Infrastructure.Repositories
             return await connection.QueryAsync<Workspace>(sql, new { OwnerUserId = ownerUserId });
         }
 
+        public async Task<IEnumerable<Workspace>> GetAllForUserAsync(Guid userId)
+        {
+            using var connection = _dbConnectionFactory.Create();
+            var sql = @"
+                SELECT w.id, w.name, w.owner_user_id AS OwnerUserId, w.invite_code AS InviteCode, w.invite_enabled AS InviteEnabled, w.created_at AS CreatedAt, w.updated_at AS UpdatedAt
+                FROM workspaces w
+                JOIN workspace_users wu ON w.id = wu.workspace_id
+                WHERE wu.user_id = @UserId
+                ORDER BY w.created_at DESC";
+            return await connection.QueryAsync<Workspace>(sql, new { UserId = userId });
+        }
+
         public async Task<bool> UpdateAsync(Guid id, string newName)
         {
             using var connection = _dbConnectionFactory.Create();

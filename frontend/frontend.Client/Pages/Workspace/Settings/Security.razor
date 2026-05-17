@@ -1,0 +1,76 @@
+@page "/workspace/settings/security/{WorkspaceId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceSettingsLayout
+@rendermode InteractiveAuto
+
+<div class="settings-content-inner">
+    <h2 class="content-title">Security</h2>
+    <p class="content-subtitle">Control access and visibility of your workspace</p>
+    <hr class="divider" />
+
+    <section class="settings-section">
+        <label class="section-label">Workspace Visibility</label>
+        <div class="visibility-options">
+            <div class="opt-item active">
+                <div class="opt-radio"></div>
+                <div class="opt-text">
+                    <span class="opt-title">Private</span>
+                    <p>Only members you invite can see and access this workspace.</p>
+                </div>
+            </div>
+            <div class="opt-item">
+                <div class="opt-radio"></div>
+                <div class="opt-text">
+                    <span class="opt-title">Internal</span>
+                    <p>Anyone with an account in the system can find and request to join.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-section">
+        <h3 class="section-label">Access Requests</h3>
+        <div class="access-info-card">
+            <p>You have <strong>0</strong> pending join requests.</p>
+        </div>
+    </section>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+
+        LayoutState.SetWorkspaceMetadata("Security Settings", "settings", WorkspaceId, isOwner);
+        LayoutState.SetPageMetadata("Security Settings", "security");
+    }
+}
+
+<style>
+    .content-title { font-size: 2rem; font-weight: 800; margin: 0; }
+    .content-subtitle { color: #777; margin-top: 8px; }
+    .divider { border: none; border-top: 2px solid #000; margin: 25px 0 40px; }
+
+    .settings-section { margin-bottom: 45px; }
+    .section-label { display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
+
+    .visibility-options { display: flex; flex-direction: column; gap: 15px; }
+    .opt-item { display: flex; gap: 20px; padding: 25px; border: 2.5px solid #eee; border-radius: 18px; cursor: pointer; transition: 0.2s; align-items: center; }
+    .opt-item.active { border-color: #000; background: #fafafa; }
+    .opt-radio { width: 24px; height: 24px; border: 3px solid #000; border-radius: 50%; position: relative; }
+    .opt-item.active .opt-radio::after { content: ''; position: absolute; width: 12px; height: 12px; background: #000; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .opt-title { font-weight: 800; font-size: 1.1rem; display: block; margin-bottom: 4px; }
+    .opt-text p { color: #666; font-size: 0.9rem; margin: 0; }
+
+    .access-info-card { padding: 25px; background: #f0f0f0; border-radius: 14px; color: #444; }
+</style>

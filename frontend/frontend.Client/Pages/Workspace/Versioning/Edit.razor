@@ -1,0 +1,90 @@
+@page "/workspace/versioning/edit/{WorkspaceId:guid}/{FileId:guid}/{VersionId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="workspace-page-content">
+    <!-- ACTION BAR -->
+    <section class="ws-action-bar">
+        <div class="ws-breadcrumb">
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo("/workspace")'>Workspaces</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo($"/workspace/files/{WorkspaceId}")'>Documents</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo($"/workspace/versioning/{WorkspaceId}/{FileId}")'>Versioning</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-current">Edit Meta</span>
+        </div>
+    </section>
+
+    <!-- EDIT AREA -->
+    <div class="form-container">
+        <div class="edit-card">
+            <h2 class="form-title">Edit Version Metadata</h2>
+            <p class="form-subtitle">Update description or tags for this specific version</p>
+
+            <div class="form-group">
+                <label>Version Number</label>
+                <input type="text" class="custom-input disabled" value="1.0.4" disabled />
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea class="custom-textarea" placeholder="Describe the changes..."></textarea>
+            </div>
+
+            <div class="action-footer">
+                <button class="ws-btn-secondary" @onclick='() => Navigation.NavigateTo($"/workspace/versioning/{WorkspaceId}/{FileId}")'>Cancel</button>
+                <button class="ws-btn-primary">Update Version</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    [Parameter] public Guid FileId { get; set; }
+    [Parameter] public Guid VersionId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+        LayoutState.SetWorkspaceMetadata("Edit Version", "versioning", WorkspaceId, isOwner);
+    }
+}
+
+<style>
+    .workspace-page-content { background: #f8f9fa; min-height: calc(100vh - 120px); }
+
+    /* Standardized Action Bar */
+    .ws-action-bar { padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eee; }
+    .ws-breadcrumb { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+    .crumb-link { color: #888; cursor: pointer; transition: 0.2s; }
+    .crumb-link:hover { color: black; text-decoration: underline; }
+    .crumb-sep { color: #ddd; }
+    .crumb-current { font-weight: 700; color: #111; }
+
+    /* Form Styles */
+    .form-container { padding: 60px; display: flex; justify-content: center; }
+    .edit-card { background: white; width: 100%; max-width: 700px; padding: 50px; border-radius: 24px; border: 3px solid #000; box-shadow: 12px 12px 0px #000; }
+    .form-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; }
+    .form-subtitle { color: #666; margin-bottom: 35px; }
+
+    .form-group label { display: block; font-weight: 700; margin-bottom: 10px; }
+    .custom-input, .custom-textarea { width: 100%; border: 1.5px solid #eee; border-radius: 12px; padding: 12px 18px; font-size: 1rem; outline: none; }
+    .custom-input.disabled { background: #f9f9f9; color: #888; border-style: dashed; }
+    .custom-textarea { height: 120px; resize: none; font-family: inherit; }
+    .custom-textarea:focus { border-color: #000; }
+
+    .action-footer { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+    .ws-btn-primary { background: black; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+    .ws-btn-secondary { background: transparent; color: #666; border: none; padding: 12px 25px; font-weight: 700; cursor: pointer; }
+</style>

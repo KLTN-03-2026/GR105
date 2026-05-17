@@ -1,4 +1,4 @@
-﻿namespace backend.Infrastructure.Repositories
+namespace backend.Infrastructure.Repositories
 {
     using backend.Application.Interfaces;
     using backend.Domain.Entities;
@@ -41,6 +41,10 @@
                     email AS Email,
                     password_hash AS PasswordHash,
                     global_role AS GlobalRole,
+                    bio AS Bio,
+                    role AS Role,
+                    team AS Team,
+                    division AS Division,
                     is_locked AS IsLocked,
                     created_at AS CreatedAt,
                     updated_at AS UpdatedAt
@@ -65,6 +69,10 @@
                     email AS Email,
                     password_hash AS PasswordHash,
                     global_role AS GlobalRole,
+                    bio AS Bio,
+                    role AS Role,
+                    team AS Team,
+                    division AS Division,
                     is_locked AS IsLocked,
                     created_at AS CreatedAt,
                     updated_at AS UpdatedAt
@@ -80,11 +88,17 @@
             });
         }
 
-        public async Task<bool> UpdateProfileAsync(Guid id, string username)
+        public async Task<bool> UpdateProfileAsync(Guid id, string? username, string? bio, string? role, string? team, string? division)
         {
             var sql = @"
                 UPDATE users
-                SET username = @Username, updated_at = @UpdatedAt
+                SET 
+                    username = COALESCE(@Username, username),
+                    bio = @Bio,
+                    role = @Role,
+                    team = @Team,
+                    division = @Division,
+                    updated_at = @UpdatedAt
                 WHERE id = @Id;
             ";
 
@@ -93,6 +107,10 @@
             {
                 Id = id,
                 Username = username,
+                Bio = bio,
+                Role = role,
+                Team = team,
+                Division = division,
                 UpdatedAt = DateTime.UtcNow
             });
             return rows > 0;

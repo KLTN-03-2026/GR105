@@ -1,0 +1,258 @@
+@page "/contact"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout StandardLayout
+@rendermode InteractiveAuto
+
+<div class="contact-content-wrapper">
+    <div class="skeuomorphic-phone">
+
+        @* --- ỐNG NGHE (HANDSET) --- *@
+        <div class="handset-section">
+            <div class="handset-handle"></div>
+            <div class="phone-cord-long"></div>
+        </div>
+
+        @* --- THÂN MÁY (BASE) --- *@
+        <div class="base-unit">
+            @* Cụm Màn hình LCD *@
+            <div class="display-panel">
+                <div class="led-indicators">
+                    <span class="led"></span>
+                    <span class="led"></span>
+                    <span class="led"></span>
+                </div>
+
+                <div class="lcd-screen">
+                    <div class="lcd-inner">
+                        <div class="lcd-text">
+                            <h2>Contact Us</h2>
+                            <button class="email-trigger">Email</button>
+                        </div>
+                        <div class="lcd-profile-pic">
+                            <span class="user-glyph">👤</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Cụm Phím bấm và Loa *@
+            <div class="interaction-area">
+                @* Bàn phím số *@
+                <div class="numpad">
+                    @for (int i = 1; i <= 9; i++)
+                    {
+                        <button class="dial-button">@i</button>
+                    }
+                    <button class="dial-button">*</button>
+                    <button class="dial-button">0</button>
+                    <button class="dial-button">#</button>
+                </div>
+
+                @* Cụm loa và nút chức năng bên phải *@
+                <div class="right-accessory">
+                    <div class="speaker-grill-top">
+                        <span class="grill-bar"></span>
+                        <span class="grill-bar"></span>
+                        <span class="grill-bar"></span>
+                    </div>
+                    <div class="function-knobs">
+                        <button class="knob"></button>
+                        <button class="knob dark"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.SetPageMetadata("Contact Us", "contact");
+    }
+}
+
+<style>
+    :root {
+        --phone-dark: #121212;
+    }
+
+    .contact-content-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fcfcfc;
+        padding: 40px;
+        min-height: calc(100vh - 65px);
+    }
+
+    .skeuomorphic-phone {
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        gap: 15px;
+        transform: scale(0.9);
+    }
+
+    .handset-handle {
+        width: 110px;
+        height: 480px;
+        background: var(--phone-dark);
+        border-radius: 55px;
+        box-shadow: -12px 15px 30px rgba(0,0,0,0.3);
+        z-index: 5;
+    }
+
+    .phone-cord-long {
+        width: 80px;
+        height: 120px;
+        border-left: 3px solid var(--phone-dark);
+        border-bottom: 3px solid var(--phone-dark);
+        border-radius: 0 0 0 45px;
+        margin-top: -30px;
+        margin-left: 20px;
+    }
+
+    .base-unit {
+        width: 680px;
+        background: #ffffff;
+        border: 2px solid var(--phone-dark);
+        border-radius: 45px;
+        padding: 45px;
+        box-shadow: 20px 25px 0px rgba(0,0,0,0.03);
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .display-panel {
+        background: #444;
+        border-radius: 25px;
+        padding: 18px;
+        display: flex;
+        gap: 15px;
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .led {
+        width: 40px;
+        height: 12px;
+        background: #666;
+        border-radius: 3px;
+    }
+
+    .lcd-screen {
+        flex: 1;
+        background: white;
+        border-radius: 15px;
+        padding: 20px 35px;
+        box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .lcd-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .lcd-text h2 {
+        font-size: 2.4rem;
+        font-weight: 900;
+        margin: 0;
+    }
+
+    .email-trigger {
+        background: var(--phone-dark);
+        color: white;
+        border: none;
+        padding: 10px 40px;
+        border-radius: 25px;
+        font-weight: bold;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .lcd-profile-pic {
+        width: 100px;
+        height: 100px;
+        background: #e0e0e0;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+    }
+
+    .interaction-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .numpad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .dial-button {
+        width: 70px;
+        height: 70px;
+        border: 2.5px solid var(--phone-dark);
+        background: white;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.15s;
+        box-shadow: 0 5px 0 var(--phone-dark);
+    }
+
+    .dial-button:active {
+        transform: translateY(4px);
+        box-shadow: 0 1px 0 var(--phone-dark);
+    }
+
+    .right-accessory {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 50px;
+    }
+
+    .speaker-grill-top {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .grill-bar {
+        width: 90px;
+        height: 10px;
+        background: var(--phone-dark);
+        border-radius: 10px;
+    }
+
+    .function-knobs {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .knob {
+        width: 50px;
+        height: 50px;
+        border: 2.5px solid var(--phone-dark);
+        border-radius: 50%;
+        background: #eee;
+        cursor: pointer;
+    }
+
+    .knob.dark {
+        background: #444;
+    }
+</style>

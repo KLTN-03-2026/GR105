@@ -1,0 +1,259 @@
+@page "/workspace/feedback/{WorkspaceId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "user")]
+@using frontend.Client.Features.Support.Services
+@using frontend.Client.Features.Support.Models
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject FeedbackService FeedbackService
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="workspace-page-content">
+    <!-- ACTION BAR -->
+    <section class="ws-action-bar">
+        <div class="ws-breadcrumb">
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo("/workspace")'>Workspaces</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-current">Feedback</span>
+        </div>
+    </section>
+
+    <!-- CONTENT AREA -->
+    <div class="ws-content-container">
+        <div class="ws-controls">
+            <div class="ws-search-wrapper">
+                <input type="text" placeholder="Search feedbacks..." class="ws-search-input" />
+                <button class="ws-search-btn">🔍</button>
+            </div>
+            <button class="ws-btn-dark">New feedback</button>
+        </div>
+
+        <div class="ws-feedback-table">
+            <div class="ws-table-header">
+                <div class="ws-col-select">
+                    <input type="checkbox" id="selectAll" />
+                    <label for="selectAll" style="margin-left:10px;">Select All</label>
+                </div>
+                <div class="ws-col-author">Author</div>
+                <div class="ws-col-directed">Directed To</div>
+                <div class="ws-col-updated">Last Updated</div>
+            </div>
+
+            <div class="ws-table-body">
+                @if (feedbacks == null)
+                {
+                    <div class="ws-loading">Loading feedbacks...</div>
+                }
+                else if (!feedbacks.Any())
+                {
+                    <div class="ws-empty">No feedbacks found for this workspace.</div>
+                }
+                else
+                {
+                    @foreach (var fb in feedbacks)
+                    {
+                        <div class="ws-table-row" @onclick='() => Navigation.NavigateTo($"/workspace/feedback/{WorkspaceId}/read/{fb.Id}")' style="cursor: pointer;">
+                            <div class="ws-col-title-group">
+                                <input type="checkbox" />
+                                <div class="ws-title-wrap">
+                                    <span class="ws-row-title">@fb.Content.Substring(0, Math.Min(fb.Content.Length, 40))...</span>
+                                    <span class="ws-row-status">Status: @fb.Status</span>
+                                </div>
+                            </div>
+                            <div class="ws-col-author">@fb.UserName</div>
+                            <div class="ws-col-directed">@fb.TargetName</div>
+                            <div class="ws-col-updated">@fb.CreatedAt.ToShortDateString()</div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    private List<FeedbackResponse>? feedbacks;
+    private WorkspaceResponse? workspace;
+
+    protected override async Task OnInitializedAsync()
+    {
+        workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+
+        LayoutState.SetWorkspaceMetadata("Feedback", "feedback", WorkspaceId, isOwner);
+
+        if (WorkspaceId != Guid.Empty)
+        {
+            feedbacks = await FeedbackService.GetFeedbacksByWorkspaceIdAsync(WorkspaceId);
+        }
+    }
+}
+
+<style>
+    .workspace-page-content {
+        background: #f8f9fa;
+        min-height: calc(100vh - 120px);
+    }
+
+    /* Standardized Action Bar */
+    .ws-action-bar {
+        padding: 25px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-bottom: 1px solid #eee;
+    }
+
+    .ws-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.95rem;
+    }
+
+    .crumb-link {
+        color: #888;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .crumb-sep {
+        color: #ddd;
+    }
+
+    .crumb-current {
+        font-weight: 700;
+        color: #111;
+    }
+
+    /* Feedback Content */
+    .ws-content-container {
+        padding: 40px;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .ws-controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        gap: 20px;
+    }
+
+    .ws-search-wrapper {
+        display: flex;
+        flex: 1;
+        border: 1.5px solid #000;
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        max-width: 600px;
+    }
+
+    .ws-search-input {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        outline: none;
+        font-size: 0.95rem;
+    }
+
+    .ws-search-btn {
+        width: 60px;
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .ws-btn-dark {
+        background: #111;
+        color: white;
+        padding: 0 30px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    /* Table Styles */
+    .ws-feedback-table {
+        background: white;
+        border: 1.5px solid #000;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .ws-table-header {
+        background: #1a1a1a;
+        color: white;
+        display: grid;
+        grid-template-columns: 2.5fr 1fr 1fr 1fr;
+        padding: 18px 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .ws-table-row {
+        display: grid;
+        grid-template-columns: 2.5fr 1fr 1fr 1fr;
+        padding: 20px 30px;
+        border-bottom: 1px solid #eee;
+        align-items: center;
+        transition: 0.2s;
+    }
+
+    .ws-table-row:hover {
+        background: #fafafa;
+    }
+
+    .ws-table-row:last-child {
+        border-bottom: none;
+    }
+
+    .ws-col-title-group {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .ws-title-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .ws-row-title {
+        font-weight: 700;
+        color: #111;
+        font-size: 1rem;
+    }
+
+    .ws-row-status {
+        font-size: 0.8rem;
+        color: #888;
+        font-weight: 500;
+    }
+
+    .ws-col-author, .ws-col-directed, .ws-col-updated {
+        font-size: 0.95rem;
+        color: #444;
+    }
+
+    .ws-loading, .ws-empty {
+        padding: 60px;
+        text-align: center;
+        color: #666;
+    }
+</style>

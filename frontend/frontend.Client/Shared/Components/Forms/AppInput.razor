@@ -1,0 +1,63 @@
+@using System.Diagnostics.CodeAnalysis
+@typeparam TValue
+@inherits Microsoft.AspNetCore.Components.Forms.InputBase<TValue>
+
+<div class="app-input-group">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label class="form-label text-dark fw-bold">@Label</label>
+    }
+    <input @attributes="AdditionalAttributes"
+           class="form-control @CssClass custom-input-style"
+           value="@CurrentValueAsString"
+           @onchange="EventCallback.Factory.CreateBinder<string?>(this, __value => CurrentValueAsString = __value, CurrentValueAsString)" />
+    @if (ValidationFor != null)
+    {
+        <div class="validation-error">
+            <ValidationMessage For="@ValidationFor" />
+        </div>
+    }
+</div>
+
+<style>
+    .custom-input-style {
+        background-color: #FFFFFF;
+        border: 1px solid #000000;
+        border-radius: 13.5px;
+        height: 49px;
+        padding: 0 20px;
+        color: #000000;
+        font-size: 14px;
+        box-shadow: none;
+    }
+    .custom-input-style:focus {
+        border-color: #3C3B38;
+        box-shadow: 0 0 0 2px rgba(60, 59, 56, 0.2);
+        outline: none;
+    }
+    .validation-error {
+        font-size: 0.85rem;
+        color: #ff4d4d;
+        margin-top: 5px;
+        position: absolute;
+    }
+</style>
+
+@code {
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public System.Linq.Expressions.Expression<Func<TValue>>? ValidationFor { get; set; }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        if (typeof(TValue) == typeof(string))
+        {
+            result = (TValue)(object)value!;
+            validationErrorMessage = null;
+            return true;
+        }
+        
+        result = default!;
+        validationErrorMessage = "Kiểu dữ liệu không hỗ trợ";
+        return false;
+    }
+}

@@ -1,0 +1,85 @@
+﻿<div class="space-y-6">
+    <!-- Pinned Workspaces -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+            Pinned Workspaces
+        </h2>
+        <ul class="space-y-2">
+            @foreach (var ws in PinnedWorkspaces)
+            {
+                <li>
+                    <a href="/workspace/@ws.Id" class="group flex items-center justify-between p-2 rounded-md hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all">
+                        <div class="flex items-center gap-2">
+                            <img src="@ws.AvatarUrl" class="w-6 h-6 rounded-sm border border-gray-200" alt="@ws.Name" />
+                            <span class="text-sm font-medium text-blue-600 group-hover:underline truncate w-40">@ws.Name</span>
+                        </div>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Pinned Files -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            Pinned Files
+        </h2>
+        <ul class="space-y-2">
+            @foreach (var file in PinnedFiles)
+            {
+                <li>
+                    <a href="/document/@file.Id" class="group block p-2 rounded-md hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" /></svg>
+                            <span class="text-sm font-medium text-gray-800 truncate">@file.Name</span>
+                        </div>
+                        <p class="text-xs text-gray-500 pl-6">in @file.WorkspaceName</p>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+    
+    <!-- Custom Widget: Storage / Quick Actions -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3">Storage</h2>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+            <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
+        </div>
+        <p class="text-xs text-gray-500 flex justify-between">
+            <span>4.5 GB used</span>
+            <span>10 GB total</span>
+        </p>
+    </div>
+</div>
+
+@code {
+    public class PinnedWorkspaceDto
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string AvatarUrl { get; set; } = "";
+    }
+
+    public class PinnedFileDto
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string WorkspaceName { get; set; } = "";
+    }
+
+    private List<PinnedWorkspaceDto> PinnedWorkspaces = new()
+    {
+        new() { Id = "1", Name = "KLTN Backend", AvatarUrl = "https://ui-avatars.com/api/?name=KB&background=0D8ABC&color=fff" },
+        new() { Id = "2", Name = "Frontend Architecture", AvatarUrl = "https://ui-avatars.com/api/?name=FA&background=28A745&color=fff" }
+    };
+
+    private List<PinnedFileDto> PinnedFiles = new()
+    {
+        new() { Id = "doc1", Name = "API_Endpoints_v2.docx", WorkspaceName = "KLTN Backend" },
+        new() { Id = "doc2", Name = "Architecture_Diagram.pdf", WorkspaceName = "Frontend Architecture" },
+        new() { Id = "doc3", Name = "Meeting_Notes_May.txt", WorkspaceName = "Personal Docs" }
+    };
+}

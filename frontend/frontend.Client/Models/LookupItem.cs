@@ -1,0 +1,8 @@
+namespace frontend.Client.Models
+{
+    public class LookupItem
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+}

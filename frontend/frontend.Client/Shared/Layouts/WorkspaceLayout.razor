@@ -1,0 +1,94 @@
+@inherits LayoutComponentBase
+@using frontend.Client.Shared.Components
+@using frontend.Client.Core.State
+@inject LayoutStateService LayoutState
+@inject NavigationManager Navigation
+@implements IDisposable
+@rendermode InteractiveAuto
+
+<div class="app-wrapper">
+    <TopNavbar />
+
+    <!-- SUB-TAB NAVIGATION -->
+    <nav class="ws-tabs-bar">
+        <button class="tab-item @(LayoutState.ActiveWorkspaceTab == "documents" ? "active" : "")" @onclick='() => NavigateTo("/workspace/files")'>📄 Document</button>
+        <button class="tab-item @(LayoutState.ActiveWorkspaceTab == "feedback" ? "active" : "")" @onclick='() => NavigateTo("/workspace/feedback")'>✉ Feedback</button>
+        <button class="tab-item @(LayoutState.ActiveWorkspaceTab == "versioning" ? "active" : "")" @onclick='() => NavigateTo("/workspace/versioning")'>🕒 Versioning</button>
+        
+        @if (LayoutState.IsWorkspaceOwner)
+        {
+            <button class="tab-item @(LayoutState.ActiveWorkspaceTab == "logs" ? "active" : "")">📋 Logs</button>
+            <button class="tab-item @(LayoutState.ActiveWorkspaceTab == "settings" ? "active" : "")">⚙ Settings</button>
+        }
+    </nav>
+
+    <main class="workspace-main-content">
+        @Body
+    </main>
+
+    <GlobalModals />
+    <DrawerMenu />
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+
+    private void NavigateTo(string baseRoute)
+    {
+        if (LayoutState.CurrentWorkspaceId != Guid.Empty)
+        {
+            Navigation.NavigateTo($"{baseRoute}/{LayoutState.CurrentWorkspaceId}");
+        }
+    }
+}
+
+<style>
+    .app-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #f5f5f5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .ws-tabs-bar {
+        background: #2d2d2d;
+        padding: 10px 40px 0;
+        display: flex;
+        gap: 5px;
+    }
+
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        font-size: 0.95rem;
+        transition: 0.2s;
+    }
+
+    .tab-item:hover {
+        color: white;
+    }
+
+    .tab-item.active {
+        background: #fff;
+        color: #000;
+        font-weight: bold;
+    }
+
+    .workspace-main-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+</style>

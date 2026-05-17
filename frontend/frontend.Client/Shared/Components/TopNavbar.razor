@@ -1,0 +1,162 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using frontend.Client.Core.State
+@using frontend.Client.Shared.Components.Forms
+@inject LayoutStateService LayoutState
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@implements IDisposable
+@rendermode InteractiveAuto
+
+<header class="topbar">
+    <div class="topbar-left">
+        <AppButton Class="bg-transparent border-0 text-white" OnClick="LayoutState.ToggleMenu">☰</AppButton>
+        <img src="/images/logo.png" alt="DMS Logo" class="brand-logo-img" />
+        <span class="brand-name">@LayoutState.Title</span>
+    </div>
+
+    <div class="topbar-center">
+        <div class="search-input-wrapper" @onclick="LayoutState.ToggleSearch">
+            <span class="search-icon">⌕</span>
+            <input type="text" placeholder="Search anything..." readonly />
+        </div>
+    </div>
+
+    <div class="topbar-right">
+        <AppButton Class="bg-transparent border-white text-white px-3 py-1" OnClick="LayoutState.ToggleJoin">＋ Join</AppButton>
+        <AppButton Class="bg-transparent border-0 text-white" OnClick='() => Navigation.NavigateTo("/noti")'>🔔</AppButton>
+        <div class="user-profile-info" @onclick="HandleProfileClick" style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+            @if (_isLoadingProfile)
+            {
+                <span class="username-text">Loading...</span>
+            }
+            else if (AuthState.User != null)
+            {
+                <span class="username-text">@AuthState.User.Username</span>
+            }
+            <AppButton Class="bg-transparent border-0 text-white profile-trigger">👤</AppButton>
+        </div>
+    </div>
+</header>
+
+@code {
+    private bool _isLoadingProfile = false;
+
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+
+    private async Task HandleProfileClick()
+    {
+        _isLoadingProfile = true;
+        StateHasChanged(); // Force render to show loading text
+
+        await AuthState.InitializeAsync();
+        
+        _isLoadingProfile = false;
+        LayoutState.ToggleProfile();
+    }
+}
+
+<style>
+    .topbar {
+        height: 65px;
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        color: white;
+        z-index: 100;
+        width: 100%;
+    }
+
+    .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .brand-logo-img {
+        height: 35px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .logo-placeholder {
+        width: 35px;
+        height: 35px;
+        background: #ddd;
+        border-radius: 4px;
+    }
+
+    .brand-name {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+    .topbar-center {
+        flex: 1;
+        max-width: 600px;
+        padding: 0 40px;
+    }
+
+    .search-input-wrapper {
+        background: #333;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        cursor: pointer;
+    }
+
+    .search-input-wrapper input {
+        background: transparent;
+        border: none;
+        color: white;
+        margin-left: 10px;
+        width: 100%;
+        outline: none;
+    }
+
+    .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .join-btn {
+        background: transparent;
+        border: 1px solid white;
+        color: white;
+        padding: 6px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    .username-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #ddd;
+    }
+
+    .user-profile-info:hover .username-text {
+        color: white;
+    }
+</style>

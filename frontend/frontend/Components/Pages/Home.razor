@@ -1,0 +1,27 @@
+@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Đang chuyển hướng...</PageTitle>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            // Redirect all authenticated users to /home. 
+            // Admins will be caught by the global interceptor in Routes.razor.
+            NavigationManager.NavigateTo("/home");
+        }
+        else
+        {
+            Console.WriteLine("[HomeServer] User is NOT authenticated. Redirecting to /login.");
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

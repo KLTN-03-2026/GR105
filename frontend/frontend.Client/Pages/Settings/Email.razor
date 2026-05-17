@@ -1,0 +1,207 @@
+@page "/settings/email"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout SettingsLayout
+@rendermode InteractiveAuto
+
+<div class="page-header">
+    <h1 class="page-title">Email</h1>
+    <button class="btn-personal-profile">
+        Personal profile
+    </button>
+</div>
+
+<div class="settings-body">
+
+    <!-- EMAIL LIST -->
+    <section class="email-list-card">
+
+        <div class="email-row">
+            <span class="email-text">user@email.com</span>
+
+            <div class="status-badge verified">
+                Verified
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-remove">
+                    Remove
+                </button>
+            </div>
+        </div>
+
+        <div class="email-row">
+            <span class="email-text">user2@email.com</span>
+
+            <div class="status-badge verified">
+                Verified
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-remove">
+                    Remove
+                </button>
+            </div>
+        </div>
+
+        <div class="email-row">
+            <span class="email-text">user3@email.com</span>
+
+            <div class="status-badge unverified">
+                Unverified
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-resend">
+                    Re-send
+                </button>
+
+                <button class="btn-remove">
+                    Remove
+                </button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ADD EMAIL -->
+    <section class="add-email-section">
+
+        <h3 class="section-label">
+            Add email address
+        </h3>
+
+        <div class="add-email-group">
+            <input type="email"
+                    class="form-control-add"
+                    placeholder="Enter email address" />
+
+            <button class="btn-black-add">
+                Add
+            </button>
+        </div>
+
+    </section>
+
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.SetPageMetadata("Email", "email");
+    }
+}
+
+<style>
+    /* PAGE SPECIFIC STYLES ONLY */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #000;
+        padding: 40px 60px 15px;
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-size: 2.3rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .btn-personal-profile {
+        background: #111;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .settings-body {
+        padding: 0 60px 60px;
+        max-width: 1100px;
+    }
+
+    .email-list-card {
+        border: 1px solid #ddd;
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 45px;
+    }
+
+    .email-row {
+        display: flex;
+        align-items: center;
+        padding: 24px 30px;
+        border-bottom: 1px solid #eee;
+        gap: 20px;
+    }
+
+    .email-row:last-child {
+        border-bottom: none;
+    }
+
+    .email-text {
+        flex: 1;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 6px 18px;
+        border-radius: 30px;
+        font-size: .85rem;
+        font-weight: 700;
+    }
+
+    .status-badge.verified {
+        background: #35ff6a;
+        color: black;
+    }
+
+    .status-badge.unverified {
+        background: #ffe96b;
+        color: black;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-remove,
+    .btn-resend,
+    .btn-black-add {
+        background: #111;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .section-label {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .add-email-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    .form-control-add {
+        flex: 1;
+        max-width: 420px;
+        border: 1.5px solid #000;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+</style>

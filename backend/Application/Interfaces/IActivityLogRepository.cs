@@ -6,5 +6,6 @@ namespace backend.Application.Interfaces
     {
         Task LogActivityAsync(Guid? userId, Guid? workspaceId, string action, string? entityType, Guid? entityId, string? entityName = null);
         Task<IEnumerable<ActivityLogResponseDto>> GetWorkspaceLogsAsync(Guid workspaceId, int limit = 50, int offset = 0);
+        Task<IEnumerable<ActivityLogResponseDto>> GetUserLogsAsync(Guid userId, int limit = 50, int offset = 0);
     }
 }

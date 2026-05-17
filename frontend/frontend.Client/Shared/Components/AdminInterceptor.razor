@@ -1,0 +1,109 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using frontend.Client.Features.Auth.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<AuthorizeView>
+    <Authorized>
+        @if (IsAdmin(context.User))
+        {
+            <div class="admin-intercept">
+                <div class="content">
+                    <h1 class="emoji">🌌</h1>
+                    <h2 class="message">ông lạc trôi đâu vào đây thế?</h2>
+                    <p class="description">Trang web này chỉ dành cho người dùng thông thường. Vui lòng quay lại đúng nơi dành cho bạn.</p>
+                    <button class="btn-logout" @onclick="HandleLogout">Về trang login</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            @ChildContent
+        }
+    </Authorized>
+    <NotAuthorized>
+        @ChildContent
+    </NotAuthorized>
+</AuthorizeView>
+
+<style>
+    .admin-intercept {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        text-align: center;
+    }
+
+    .content {
+        max-width: 450px;
+        padding: 40px;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .emoji {
+        font-size: 64px;
+        margin-bottom: 24px;
+        display: block;
+    }
+
+    .message {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 12px;
+    }
+
+    .description {
+        color: #64748b;
+        margin-bottom: 32px;
+        line-height: 1.6;
+    }
+
+    .btn-logout {
+        background: #0f172a;
+        color: white;
+        padding: 12px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .btn-logout:hover {
+        background: #334155;
+        transform: translateY(-1px);
+    }
+
+    .btn-logout:active {
+        transform: translateY(0);
+    }
+</style>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool IsAdmin(ClaimsPrincipal user)
+    {
+        return user.IsInRole("admin") || 
+               user.HasClaim(c => (c.Type == "role" || c.Type == ClaimTypes.Role) && 
+                                   c.Value.Equals("admin", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+    }
+}

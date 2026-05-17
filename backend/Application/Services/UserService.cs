@@ -3,6 +3,7 @@
 using backend.Application.Interfaces;
 using backend.Domain.Entities;
 using backend.Application.DTOs.User;
+using backend.Application.DTOs.Workspace;
 using backend.Application.Common.Exceptions;
 
 public class UserService : IUserService
@@ -23,10 +24,14 @@ public class UserService : IUserService
 
     public async Task<bool> UpdateProfileAsync(Guid userId, UpdateProfileRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Username))
-            throw new ValidationException("Username cannot be empty.");
+        var updated = await _userRepository.UpdateProfileAsync(
+            userId, 
+            request.Username?.Trim(), 
+            request.Bio?.Trim(), 
+            request.Role?.Trim(), 
+            request.Team?.Trim(), 
+            request.Division?.Trim());
 
-        var updated = await _userRepository.UpdateProfileAsync(userId, request.Username.Trim());
         if (updated)
         {
             await _activityLogRepository.LogActivityAsync(userId, null, "UPDATE_PROFILE", "user", userId);
@@ -57,6 +62,11 @@ public class UserService : IUserService
             await _activityLogRepository.LogActivityAsync(userId, null, "CHANGE_PASSWORD", "user", userId);
         }
         return updated;
+    }
+
+    public async Task<IEnumerable<ActivityLogResponseDto>> GetActivityLogsAsync(Guid userId, int limit = 50, int offset = 0)
+    {
+        return await _activityLogRepository.GetUserLogsAsync(userId, limit, offset);
     }
 }
 

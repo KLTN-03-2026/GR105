@@ -1,4 +1,4 @@
-﻿using backend.Application.Configurations;
+using backend.Application.Configurations;
 using backend.Application.DTOs;
 using backend.Application.DTOs.Auth;
 using backend.Application.Interfaces;
@@ -48,7 +48,11 @@ namespace backend.Application.Services
                 User = new UserResponse
                 {
                     Id = user.Id,
-                    Email = user.Email
+                    Username = user.Username,
+                    Email = user.Email,
+                    GlobalRole = user.GlobalRole ?? "user",
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt
                 }
             };
         }
@@ -75,7 +79,11 @@ namespace backend.Application.Services
                 User = new UserResponse
                 {
                     Id = user!.Id,
-                    Email = user.Email
+                    Username = user.Username,
+                    Email = user.Email,
+                    GlobalRole = user.GlobalRole ?? "user",
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt
                 }
             };
         }
@@ -85,7 +93,6 @@ namespace backend.Application.Services
             var user = await _userRepository.GetByEmail(email);
             if (user == null)
             {
-                // To prevent email enumeration, return gracefully without telling the user
                 return;
             }
 
@@ -94,8 +101,6 @@ namespace backend.Application.Services
 
             await _userRepository.CreatePasswordResetTokenAsync(user.Id, token, expiredAt);
 
-            // In a real application, send this token via email here.
-            // For now, we will simulate this by logging it.
             Console.WriteLine($"[EMAIL SENT TO {email}] Password Reset Link: {token}");
         }
 
@@ -117,13 +122,16 @@ namespace backend.Application.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Secret));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            // Add multiple claims for maximum compatibility
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.GlobalRole ?? "user"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("id", user.Id.ToString()), // Simple ID
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Standard Claim Type
+                new Claim("role", user.GlobalRole ?? "user"),
+                new Claim(ClaimTypes.Role, user.GlobalRole ?? "user")
             };
 
             var token = new JwtSecurityToken(

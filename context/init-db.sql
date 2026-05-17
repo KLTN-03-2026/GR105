@@ -404,3 +404,17 @@ ADD COLUMN IF NOT EXISTS is_locked BOOLEAN DEFAULT FALSE;
 -- Index hỗ trợ query nhanh danh sách user theo trạng thái khóa (nếu cần)
 CREATE INDEX IF NOT EXISTS idx_users_is_locked ON users(is_locked) WHERE is_locked = TRUE;
 
+
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS preferences JSONB DEFAULT '{}'::jsonb;
+
+-- ==========================================
+-- Refinement: User Profile Extension
+-- ==========================================
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS bio TEXT,
+ADD COLUMN IF NOT EXISTS role TEXT,
+ADD COLUMN IF NOT EXISTS team TEXT,
+ADD COLUMN IF NOT EXISTS division TEXT;
+
+

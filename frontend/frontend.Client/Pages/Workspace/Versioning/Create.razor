@@ -1,0 +1,93 @@
+@page "/workspace/versioning/create/{WorkspaceId:guid}/{FileId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceLayout
+@rendermode InteractiveAuto
+
+<div class="workspace-page-content">
+    <!-- ACTION BAR -->
+    <section class="ws-action-bar">
+        <div class="ws-breadcrumb">
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo("/workspace")'>Workspaces</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo($"/workspace/files/{WorkspaceId}")'>Documents</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-link" @onclick='() => Navigation.NavigateTo($"/workspace/versioning/{WorkspaceId}/{FileId}")'>Versioning</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-current">New Version</span>
+        </div>
+    </section>
+
+    <!-- FORM AREA -->
+    <div class="form-container">
+        <div class="create-card">
+            <h2 class="form-title">Create New Version</h2>
+            <p class="form-subtitle">Upload a new iteration of this document to keep track of changes</p>
+
+            <div class="drop-zone">
+                <div class="drop-icon">📤</div>
+                <p>Drag new file version or <strong>browse</strong></p>
+                <input type="file" class="hidden-input" />
+            </div>
+
+            <div class="form-group">
+                <label>Version Description</label>
+                <textarea class="custom-textarea" placeholder="What changed in this version?"></textarea>
+            </div>
+
+            <div class="action-footer">
+                <button class="ws-btn-secondary" @onclick='() => Navigation.NavigateTo($"/workspace/versioning/{WorkspaceId}/{FileId}")'>Cancel</button>
+                <button class="ws-btn-primary">Commit Version</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+    [Parameter] public Guid FileId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+        LayoutState.SetWorkspaceMetadata("New Version", "versioning", WorkspaceId, isOwner);
+    }
+}
+
+<style>
+    .workspace-page-content { background: #f8f9fa; min-height: calc(100vh - 120px); }
+
+    /* Standardized Action Bar */
+    .ws-action-bar { padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #eee; }
+    .ws-breadcrumb { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+    .crumb-link { color: #888; cursor: pointer; transition: 0.2s; }
+    .crumb-link:hover { color: black; text-decoration: underline; }
+    .crumb-sep { color: #ddd; }
+    .crumb-current { font-weight: 700; color: #111; }
+
+    /* Form Styles */
+    .form-container { padding: 60px; display: flex; justify-content: center; }
+    .create-card { background: white; width: 100%; max-width: 700px; padding: 50px; border-radius: 24px; border: 3px solid #000; box-shadow: 12px 12px 0px #000; }
+    .form-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; }
+    .form-subtitle { color: #666; margin-bottom: 35px; }
+
+    .drop-zone { border: 2.5px dashed #ccc; border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 30px; transition: 0.2s; cursor: pointer; position: relative; }
+    .drop-zone:hover { border-color: #000; background: #fafafa; }
+    .drop-icon { font-size: 3rem; margin-bottom: 15px; }
+    .hidden-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+    .form-group label { display: block; font-weight: 700; margin-bottom: 10px; }
+    .custom-textarea { width: 100%; height: 120px; border: 1.5px solid #eee; border-radius: 12px; padding: 15px; font-family: inherit; resize: none; outline: none; }
+    .custom-textarea:focus { border-color: #000; }
+
+    .action-footer { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+    .ws-btn-primary { background: black; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+    .ws-btn-secondary { background: transparent; color: #666; border: none; padding: 12px 25px; font-weight: 700; cursor: pointer; }
+</style>

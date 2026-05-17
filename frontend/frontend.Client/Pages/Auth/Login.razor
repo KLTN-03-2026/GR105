@@ -1,0 +1,231 @@
+﻿@page "/login"
+@using frontend.Client.Features.Auth.Components
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveAuto
+
+<PageTitle>Đăng nhập - DMS</PageTitle>
+
+<div class="scale-wrapper">
+    <!-- Normal Login View -->
+    <div class="view-container normal-view">
+        <div class="figma-artboard">
+            <!-- Hình nền đồ họa trừu tượng (Abstract shapes) theo đúng SVG -->
+            <svg class="floating-shapes" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g filter="url(#filter1_n_10_124)">
+                    <rect x="784.377" y="25.6169" width="98.9761" height="413.463" transform="rotate(-15 784.377 25.6169)" fill="#747474" />
+                </g>
+                <g filter="url(#filter2_n_10_124)">
+                    <path d="M879.725 0H784.873H778L784.186 25.4314L879.725 24.744V0Z" fill="#747474" />
+                </g>
+                <path d="M1141.23 0.240954L1046.06 0H1042.62H1039.19L1045.37 25.4313L1135.05 25.6723L1141.23 0.240954Z" fill="#747474" />
+                <rect x="870" y="402" width="180" height="39" rx="15" fill="#FFF5F5" />
+                <g filter="url(#filter3_n_10_124)">
+                    <path d="M886 402H932V425H893.5L886 402Z" fill="#4A4A4A" />
+                </g>
+                <path d="M1039.43 2.5579e-06L1135.03 25.6169L1024.5 425L977.5 425L925.5 425L1039.43 2.5579e-06Z" fill="#747474" />
+                <defs>
+                    <filter id="filter1_n_10_124" x="784.377" y="0" width="202.616" height="424.991" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feTurbulence type="fractalNoise" baseFrequency="2 2" stitchTiles="stitch" numOctaves="3" result="noise" seed="5759" />
+                        <feColorMatrix in="noise" type="luminanceToAlpha" result="alphaNoise" />
+                        <feComponentTransfer in="alphaNoise" result="coloredNoise1">
+                            <feFuncA type="discrete" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 " />
+                        </feComponentTransfer>
+                        <feComposite operator="in" in2="shape" in="coloredNoise1" result="noise1Clipped" />
+                        <feFlood flood-color="rgba(0, 0, 0, 0.25)" result="color1Flood" />
+                        <feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
+                        <feMerge result="effect1_noise_10_124">
+                            <feMergeNode in="shape" />
+                            <feMergeNode in="color1" />
+                        </feMerge>
+                    </filter>
+                    <filter id="filter2_n_10_124" x="778" y="0" width="101.725" height="25.4313" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feTurbulence type="fractalNoise" baseFrequency="2 2" stitchTiles="stitch" numOctaves="3" result="noise" seed="6106" />
+                        <feColorMatrix in="noise" type="luminanceToAlpha" result="alphaNoise" />
+                        <feComponentTransfer in="alphaNoise" result="coloredNoise1">
+                            <feFuncA type="discrete" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 " />
+                        </feComponentTransfer>
+                        <feComposite operator="in" in2="shape" in="coloredNoise1" result="noise1Clipped" />
+                        <feFlood flood-color="rgba(0, 0, 0, 0.25)" result="color1Flood" />
+                        <feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
+                        <feMerge result="effect1_noise_10_124">
+                            <feMergeNode in="shape" />
+                            <feMergeNode in="color1" />
+                        </feMerge>
+                    </filter>
+                    <filter id="filter3_n_10_124" x="886" y="402" width="46" height="23" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feTurbulence type="fractalNoise" baseFrequency="2 2" stitchTiles="stitch" numOctaves="3" result="noise" seed="8872" />
+                        <feColorMatrix in="noise" type="luminanceToAlpha" result="alphaNoise" />
+                        <feComponentTransfer in="alphaNoise" result="coloredNoise1">
+                            <feFuncA type="discrete" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 " />
+                        </feComponentTransfer>
+                        <feComposite operator="in" in2="shape" in="coloredNoise1" result="noise1Clipped" />
+                        <feFlood flood-color="rgba(0, 0, 0, 0.25)" result="color1Flood" />
+                        <feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
+                        <feMerge result="effect1_noise_10_124">
+                            <feMergeNode in="shape" />
+                            <feMergeNode in="color1" />
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+
+            <!-- Container chính -->
+            <div class="dark-container">
+                <div class="gray-box"></div>
+                <div class="white-box">
+                    <div class="logo-box-main">
+                        <img src="/images/logo.png" alt="Logo" class="login-logo-img" />
+                    </div>
+                    <div class="system-title">DOCUMENT MANAGEMENT</div>
+                    <div class="form-title">SIGN IN TO YOUR ACCOUNT</div>
+                    
+                    <div class="form-container">
+                        <LoginForm />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        background-color: #FFFFFF;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .scale-wrapper {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #FFFFFF;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .view-container {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Normal View states */
+    .normal-view {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .figma-artboard {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+        transform-origin: center center;
+        transform: scale(min(calc(100vw / 1920), calc(100vh / 1080)));
+    }
+
+    /* Original Normal Login Styles */
+    .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .dark-container {
+        position: absolute;
+        left: 464px;
+        top: 392px;
+        width: 992px;
+        height: 544px;
+        background-color: #1E1E1E;
+        border-radius: 28px;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        z-index: 1;
+    }
+
+    .gray-box {
+        position: absolute;
+        left: 51px;
+        top: 65px;
+        width: 889px;
+        height: 431px;
+        background-color: #636363;
+        border-radius: 25px;
+    }
+
+    .white-box {
+        position: absolute;
+        left: 65px;
+        top: 77px;
+        width: 862px;
+        height: 408px;
+        background-color: #fff;
+    }
+
+    .logo-box-main {
+        position: absolute;
+        left: 374.5px;
+        top: 15px;
+        width: 113px;
+        height: 79px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-logo-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .system-title {
+        position: absolute;
+        left: 0;
+        top: 115px;
+        width: 100%;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        color: #000000;
+    }
+
+    .form-title {
+        position: absolute;
+        left: 0;
+        top: 140px;
+        width: 100%;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 500;
+        color: #000000;
+    }
+
+    .form-container {
+        position: absolute;
+        left: 212.5px;
+        top: 170.5px;
+        width: 437px;
+    }
+</style>
+
+@code {
+    // Admin login logic removed as per security requirements
+}

@@ -1,0 +1,359 @@
+@page "/profile"
+@using frontend.Client.Features.User.Services
+@using frontend.Client.Features.User.Models
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Shared.Components.Forms
+@using frontend.Client.Core.State
+@inject UserService UserService
+@inject frontend.Client.Services.LookupService LookupService
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout StandardLayout
+@rendermode InteractiveAuto
+
+<div class="profile-page-wrapper">
+    <div class="main-header-custom">
+        <div>
+            <h1 class="page-title-main">Personal Profile</h1>
+            <p class="page-subtitle-main">Manage your public identity and account settings</p>
+        </div>
+        <button class="back-btn-custom" @onclick='() => Navigation.NavigateTo("/home")'>
+            Back to Dashboard
+        </button>
+    </div>
+
+    <div class="profile-grid">
+        <!-- FORM SECTION -->
+        <section class="profile-card-main">
+            @if (_profile == null)
+            {
+                <div class="loading-state">
+                    <p>Loading profile data...</p>
+                </div>
+            }
+            else
+            {
+                <EditForm Model="@_updateRequest" OnValidSubmit="HandleUpdate" FormName="profileMainForm">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-row-custom">
+                        <div class="form-group-custom">
+                            <label>Full Name</label>
+                            <input type="text" class="custom-input-main" value="@_profile.Username" disabled />
+                            <small class="help-text">Username cannot be changed</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row-custom">
+                        <div class="form-group-custom">
+                            <label>Bio</label>
+                            <textarea class="custom-textarea-main" placeholder="Tell us about yourself..." @bind="_updateRequest.Bio"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row-custom grid-2">
+                        <div class="form-group-custom">
+                            <label>Role</label>
+                            <div class="select-wrapper-main">
+                                <select class="custom-input-main" @bind="_updateRequest.Role">
+                                    <option value="">Select your role</option>
+                                    <option>Developer</option>
+                                    <option>UI/UX Designer</option>
+                                    <option>Quality Control</option>
+                                    <option>Project Manager</option>
+                                </select>
+                                <span class="select-arrow-main">▽</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label>Team</label>
+                            <input type="text" class="custom-input-main" placeholder="Your team name" @bind="_updateRequest.Team" />
+                        </div>
+                    </div>
+
+                    <div class="form-row-custom">
+                        <div class="form-group-custom">
+                            <label>Division</label>
+                            <input type="text" class="custom-input-main" placeholder="Your division" @bind="_updateRequest.Division" />
+                        </div>
+                    </div>
+
+                    <div class="form-actions-main">
+                        <AppButton Type="submit" Class="px-5 py-3" IsLoading="@_isSubmitting" style="font-weight: 800; border-radius: 12px;">
+                            SAVE CHANGES
+                        </AppButton>
+                        @if (!string.IsNullOrEmpty(_message))
+                        {
+                            <span class="status-msg @(_message.Contains("success") ? "success" : "error")">@_message</span>
+                        }
+                    </div>
+                </EditForm>
+            }
+        </section>
+
+        <!-- PREVIEW SECTION -->
+        <aside class="profile-preview-sidebar">
+            <div class="preview-card-main">
+                <div class="preview-avatar-main">👤</div>
+                <h2 class="preview-name-main">@(_profile?.Username ?? "User")</h2>
+                <p class="preview-role-main">@(_updateRequest.Role ?? "Member")</p>
+                <div class="preview-divider"></div>
+                <div class="preview-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">@(_updateRequest.Team ?? "N/A")</span>
+                        <span class="stat-label">Team</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">@(_updateRequest.Division ?? "N/A")</span>
+                        <span class="stat-label">Division</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+@code {
+    private UserProfileResponse? _profile;
+    private UpdateProfileRequest _updateRequest = new();
+    private bool _isSubmitting;
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutState.SetPageMetadata("Edit Profile", "profile");
+
+        _profile = await UserService.GetProfileAsync();
+        if (_profile != null)
+        {
+            _updateRequest.Bio = _profile.Bio;
+            _updateRequest.Role = _profile.Role;
+            _updateRequest.Team = _profile.Team;
+            _updateRequest.Division = _profile.Division;
+        }
+    }
+
+    private async Task HandleUpdate()
+    {
+        _isSubmitting = true;
+        _message = null;
+        StateHasChanged(); // Force UI to show loading state immediately
+
+        var success = await UserService.UpdateProfileAsync(_updateRequest);
+        if (success)
+        {
+            _message = "Profile updated successfully!";
+            // Refresh local state if needed
+        }
+        else
+        {
+            _message = "Failed to update profile.";
+        }
+
+        _isSubmitting = false;
+        StateHasChanged();
+    }
+}
+
+<style>
+    .profile-page-wrapper {
+        padding: 60px;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .main-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 50px;
+    }
+
+    .page-title-main {
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: -1.5px;
+        margin: 0;
+        color: #111;
+    }
+
+    .page-subtitle-main {
+        font-size: 1.1rem;
+        color: #666;
+        margin-top: 10px;
+    }
+
+    .back-btn-custom {
+        background: #000;
+        color: #fff;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .back-btn-custom:hover {
+        background: #333;
+        transform: translateY(-2px);
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 50px;
+    }
+
+    .profile-card-main {
+        background: #fff;
+        border-radius: 32px;
+        padding: 50px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+    }
+
+    .form-row-custom {
+        margin-bottom: 30px;
+    }
+
+    .form-row-custom.grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .form-group-custom label {
+        display: block;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        color: #111;
+    }
+
+    .custom-input-main, .custom-textarea-main {
+        width: 100%;
+        background: #f9fafb;
+        border: 2px solid #f3f4f6;
+        border-radius: 16px;
+        padding: 16px 20px;
+        font-size: 1rem;
+        transition: 0.2s;
+        outline: none;
+    }
+
+    .custom-input-main:focus, .custom-textarea-main:focus {
+        background: #fff;
+        border-color: #000;
+    }
+
+    .custom-textarea-main {
+        height: 160px;
+        resize: none;
+    }
+
+    .help-text {
+        display: block;
+        margin-top: 8px;
+        color: #9ca3af;
+        font-size: 0.85rem;
+    }
+
+    .select-wrapper-main {
+        position: relative;
+    }
+
+    .select-arrow-main {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .form-actions-main {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .status-msg {
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .status-msg.success { color: #10b981; }
+    .status-msg.error { color: #ef4444; }
+
+    /* Sidebar Preview */
+    .preview-card-main {
+        background: #111;
+        color: #fff;
+        border-radius: 32px;
+        padding: 50px 40px;
+        text-align: center;
+        position: sticky;
+        top: 40px;
+    }
+
+    .preview-avatar-main {
+        width: 140px;
+        height: 140px;
+        background: #222;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        margin: 0 auto 30px;
+        border: 4px solid #333;
+    }
+
+    .preview-name-main {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .preview-role-main {
+        color: #888;
+        font-size: 1.1rem;
+        margin: 10px 0 30px;
+    }
+
+    .preview-divider {
+        height: 1px;
+        background: #333;
+        margin-bottom: 30px;
+    }
+
+    .preview-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .stat-value {
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+</style>

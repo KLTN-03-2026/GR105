@@ -1,0 +1,75 @@
+@page "/workspace/settings/co-writers/{WorkspaceId:guid}"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Features.Workspace.Services
+@using frontend.Client.Features.Workspace.Models
+@inject WorkspaceService WorkspaceService
+@inject AuthState AuthState
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout WorkspaceSettingsLayout
+@rendermode InteractiveAuto
+
+<div class="settings-content-inner">
+    <div class="header-row">
+        <h2 class="content-title">Co-Writers</h2>
+        <button class="btn-black">＋ Add Member</button>
+    </div>
+    <p class="content-subtitle">Manage members who can collaborate on this workspace</p>
+    <hr class="divider" />
+
+    <div class="member-list">
+        @for (int i = 1; i <= 3; i++)
+        {
+            <div class="member-item">
+                <div class="member-info">
+                    <div class="member-avatar">👤</div>
+                    <div class="member-details">
+                        <span class="member-name">Collaborator_@i</span>
+                        <span class="member-role">Editor</span>
+                    </div>
+                </div>
+                <div class="member-actions">
+                    <button class="action-link">Change Role</button>
+                    <button class="action-link text-red">Remove</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid WorkspaceId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var workspace = await WorkspaceService.GetWorkspaceByIdAsync(WorkspaceId);
+        bool isOwner = workspace?.OwnerUserId == AuthState.User?.Id;
+
+        LayoutState.SetWorkspaceMetadata("Co-Writers", "settings", WorkspaceId, isOwner);
+        LayoutState.SetPageMetadata("Co-Writers", "co-writers");
+    }
+}
+
+<style>
+    .content-title { font-size: 2rem; font-weight: 800; margin: 0; }
+    .content-subtitle { color: #777; margin-top: 8px; }
+    .divider { border: none; border-top: 2px solid #000; margin: 25px 0 40px; }
+
+    .header-row { display: flex; justify-content: space-between; align-items: center; }
+    .btn-black { background: #000; color: #fff; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+
+    .member-list { display: flex; flex-direction: column; gap: 15px; }
+    .member-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: white; border: 1.5px solid #eee; border-radius: 16px; transition: 0.2s; }
+    .member-item:hover { border-color: #000; box-shadow: 6px 6px 0 rgba(0,0,0,0.03); }
+
+    .member-info { display: flex; align-items: center; gap: 15px; }
+    .member-avatar { width: 45px; height: 45px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .member-details { display: flex; flex-direction: column; }
+    .member-name { font-weight: 700; color: #000; }
+    .member-role { font-size: 0.85rem; color: #777; }
+
+    .member-actions { display: flex; gap: 20px; }
+    .action-link { background: none; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+    .text-red { color: #dc3545; }
+</style>

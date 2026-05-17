@@ -1,0 +1,68 @@
+@using frontend.Client.Core.State
+@inject LayoutStateService LayoutState
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<aside class="main-sidebar">
+    <nav class="nav-menu">
+        <a href="/home" class="nav-link @(LayoutState.ActiveSidebarItem == "home" ? "active" : "")">
+            <span class="icon">⌂</span> Dashboard
+        </a>
+        <a href="/workspace" class="nav-link @(LayoutState.ActiveSidebarItem == "workspaces" ? "active" : "")">
+            <span class="icon">📁</span> My workspaces
+        </a>
+        <a href="/support/feedback" class="nav-link @(LayoutState.ActiveSidebarItem == "feedback" ? "active" : "")">
+            <span class="icon">✉</span> Feedback
+        </a>
+    </nav>
+</aside>
+
+@code {
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+}
+
+<style>
+    .main-sidebar {
+        width: 280px;
+        background: #000;
+        padding-top: 20px;
+        flex-shrink: 0;
+        min-height: calc(100vh - 65px);
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 14px 25px;
+        color: #888;
+        text-decoration: none;
+        transition: 0.2s;
+        font-size: 1rem;
+        gap: 15px;
+    }
+
+    .nav-link:hover {
+        color: white;
+        background: #111;
+    }
+
+    .nav-link.active {
+        background: white;
+        color: black;
+        border-radius: 12px 0 0 12px;
+        margin-left: 15px;
+        font-weight: bold;
+    }
+
+    .nav-link .icon {
+        font-size: 1.2rem;
+    }
+</style>

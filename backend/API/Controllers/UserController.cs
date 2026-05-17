@@ -93,6 +93,17 @@ namespace backend.API.Controllers
             if (!updated) return BadRequest(new { message = "Failed to change password." });
 
             return Ok(new { message = "Password changed successfully." });
-        }
-    }
-}
+            }
+
+            [HttpGet("me/logs")]
+            [Authorize]
+            public async Task<IActionResult> GetMyActivityLogs([FromQuery] int limit = 50, [FromQuery] int offset = 0)
+            {
+            var currentUserId = _userContext.UserId;
+            if (currentUserId == Guid.Empty) return Unauthorized();
+
+            var logs = await _userService.GetActivityLogsAsync(currentUserId, limit, offset);
+            return Ok(logs);
+            }
+            }
+            }

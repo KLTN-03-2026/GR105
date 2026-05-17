@@ -1,0 +1,206 @@
+@page "/settings/workspace"
+@using frontend.Client.Shared.Layouts
+@using frontend.Client.Core.State
+@using frontend.Client.Shared.Components.Forms
+@inject NavigationManager Navigation
+@inject LayoutStateService LayoutState
+@layout SettingsLayout
+@rendermode InteractiveAuto
+
+<div class="main-header">
+    <div>
+        <h1 class="page-title">Workspace</h1>
+    </div>
+
+    <AppButton OnClick='() => Navigation.NavigateTo("/profile")'>
+        Personal Profile
+    </AppButton>
+</div>
+
+<div class="settings-body">
+
+    <!-- TAB SELECTOR -->
+    <div class="workspace-tabs">
+        <AppButton Class='@($"tab-item {(activeTab == "active" ? "active" : "")} bg-transparent border-0")'
+                   OnClick='() => activeTab = "active"'>
+            <span class="icon">📁</span> Active Workspace
+        </AppButton>
+        <AppButton Class='@($"tab-item {(activeTab == "deleted" ? "active" : "disabled")} bg-transparent border-0")'
+                   OnClick='() => activeTab = "deleted"'>
+            <span class="icon">🗑️</span> Deleted Workspace
+        </AppButton>
+    </div>
+
+    <!-- WORKSPACE LIST -->
+    <div class="workspace-list-container">
+
+        <!-- Group 1: My Workspace -->
+        <div class="workspace-group">
+            <h3 class="group-label">My workspace</h3>
+            <div class="workspace-card">
+                <div class="workspace-item">
+                    <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                    <span class="ws-info">&lt;size&gt;</span>
+                    <span class="ws-info">&lt;files numbers&gt;</span>
+                    <span class="ws-collab">👤 &lt;x&gt; Co-Writer</span>
+                </div>
+                <div class="workspace-item">
+                    <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                </div>
+                <div class="workspace-item">
+                    <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group 2: Shared Workspace -->
+        <div class="workspace-group">
+            <h3 class="group-label">Username</h3>
+            <div class="workspace-card">
+                <div class="workspace-item has-action">
+                    <div class="ws-main-info">
+                        <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                        <span class="ws-info">&lt;size&gt;</span>
+                        <span class="ws-info">&lt;files numbers&gt;</span>
+                    </div>
+                    <AppButton Class="px-3 py-1" style="font-size: 0.85rem;">Leave workspace</AppButton>
+                </div>
+                <div class="workspace-item">
+                    <span class="ws-path">Username/&lt;Workspace Name&gt;</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private string activeTab = "active";
+
+    protected override void OnInitialized()
+    {
+        LayoutState.SetPageMetadata("Workspace", "workspace");
+    }
+}
+
+<style>
+    /* PAGE SPECIFIC STYLES ONLY */
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1.5px solid #000;
+        padding-left: 40px;
+        padding-right: 40px;
+        padding-top: 40px;
+    }
+
+    .page-title {
+        font-size: 42px;
+        font-weight: 900;
+        margin: 0;
+    }
+
+    .back-btn {
+        background: black;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .settings-body {
+        padding: 0 40px 40px;
+    }
+
+    .workspace-tabs {
+        background-color: #1a1a1a;
+        border-radius: 12px;
+        padding: 10px 20px;
+        display: flex;
+        gap: 30px;
+        margin-bottom: 25px;
+    }
+
+    .tab-item {
+        background: transparent;
+        border: none;
+        color: #888;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 4px 0;
+    }
+
+    .tab-item.active {
+        color: white;
+    }
+
+    .tab-item.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .workspace-group {
+        margin-bottom: 30px;
+    }
+
+    .group-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .workspace-card {
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .workspace-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        transition: background 0.2s;
+    }
+
+    .workspace-item:last-child {
+        border-bottom: none;
+    }
+
+    .workspace-item:hover {
+        background-color: #fafafa;
+    }
+
+    .ws-path {
+        font-weight: 500;
+        color: #000;
+        min-width: 250px;
+    }
+
+    .ws-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .btn-leave {
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
